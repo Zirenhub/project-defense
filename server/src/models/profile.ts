@@ -13,9 +13,23 @@ const ProfileSchema = new Schema<IProfile>(
       type: String,
       required: true,
     },
+    followers: [{ type: Schema.ObjectId, required: true }],
+    following: [{ type: Schema.ObjectId, required: true }],
+    at: {
+      type: String,
+      required: true,
+    },
+    bio: {
+      type: String,
+      default: null,
+    },
     birthday: {
       type: Date,
       required: true,
+    },
+    profilePic: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true }
