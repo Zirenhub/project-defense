@@ -10,7 +10,8 @@
     "strict": true,
     "skipLibCheck": true,
     "noImplicitAny": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["./src/index.d.ts"]
   },
   "ts-node": {
     "esm": true,
