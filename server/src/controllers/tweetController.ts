@@ -1,14 +1,13 @@
-import { Response } from 'express';
-import { IUserRequest } from '../middleware/jwtAuth';
+import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import TweetModel from '../models/tweet';
 import LikeModel from '../models/likes';
-import mongoose from 'mongoose';
+import CommentModel from '../models/comment';
 
 export const create = [
   body('content').trim().notEmpty().isLength({ min: 1, max: 150 }),
 
-  async (req: IUserRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -18,17 +17,12 @@ export const create = [
           message: null,
         });
       }
-
       const { content } = req.body;
-
       const newTweet = new TweetModel({
-        profile: req.user._id,
+        profile: res.locals.user._id,
         content,
       });
-      const newTweetLikes = new LikeModel({ tweet: newTweet._id });
-
       await newTweet.save();
-      await newTweetLikes.save();
 
       return res.json({
         status: 'success',
@@ -36,7 +30,7 @@ export const create = [
         message: null,
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         status: 'error',
         errors: null,
         message: err instanceof Error ? err.message : 'unknown',
@@ -45,47 +39,75 @@ export const create = [
   },
 ];
 
-export const like = async (req: IUserRequest, res: Response) => {
+export const like = async (req: Request, res: Response) => {
   try {
-    const tweetId = req.params.id;
-    const tweet = await TweetModel.findById(tweetId);
-    if (!tweet) {
-      return res.status(404).json({
+    const tweet = res.locals.tweet;
+    const response = await LikeModel.likeTweet(tweet._id, res.locals.user._id);
+    if (response.status === 'success') {
+      tweet.likesCount = response.model.likes.length;
+    } else {
+      return res.status(400).json({
         status: 'error',
-        errors: null,
-        message: 'Tweet not found',
+        data: null,
+        message: 'Something went wrong while trying to like',
       });
     }
 
-    const tweetLikes = await LikeModel.findOne({ tweet: tweet._id });
-    if (!tweetLikes) {
-      return res.status(404).json({
-        status: 'error',
-        errors: null,
-        message: 'Tweet likes not found',
-      });
-    }
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    await tweet.save();
 
-    tweetLikes.likes.push(req.user._id);
-    tweet.likesCount = tweet.likesCount + 1;
-
-    await tweetLikes.save({ session });
-    await tweet.save({ session });
-
-    await session.commitTransaction();
-
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       data: tweet.toObject(),
       message: null,
     });
   } catch (err) {
-    res.status(500).json({
+    return res.status(500).json({
       status: 'error',
       errors: null,
       message: err instanceof Error ? err.message : 'unknown',
     });
   }
 };
+
+export const reply = [
+  body('content')
+    .trim()
+    .notEmpty()
+    .withMessage('Reply cant be empty')
+    .isLength({ min: 1, max: 150 })
+    .withMessage('min length must be 1 and max length must be 150'),
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          status: 'error',
+          errors: errors.array(),
+          message: null,
+        });
+      }
+      const tweet = res.locals.tweet;
+      const { content } = req.body;
+
+      const newReply = new CommentModel({
+        profile: res.locals.user._id,
+        tweet: tweet._id,
+        content,
+      });
+
+      await newReply.save();
+
+      return res.status(200).json({
+        status: 'success',
+        data: newReply.toObject(),
+        message: null,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 'error',
+        errors: null,
+        message: err instanceof Error ? err.message : 'unknown',
+      });
+    }
+  },
+];
