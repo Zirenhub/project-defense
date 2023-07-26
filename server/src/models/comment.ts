@@ -24,12 +24,6 @@ const CommentSchema = new Schema<IComment>(
     repliesCount: { type: Number, required: true, default: 0 },
     retweetsCount: { type: Number, required: true, default: 0 },
     likesCount: { type: Number, required: true, default: 0 },
-    likes: { type: Schema.Types.ObjectId, ref: 'Likes', required: true },
-    original: {
-      type: Schema.Types.ObjectId,
-      ref: 'Comment',
-      default: null,
-    }, // Reference to the original tweet
   },
   { timestamps: true }
 );
