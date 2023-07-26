@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 import http from 'http';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-
 // routes
 import authRoute from './routes/authRoute';
+import tweetRoute from './routes/tweetRoute';
 
 dotenv.config();
 
@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 router.use('/auth', authRoute);
+router.use('/tweet', tweetRoute);
 
 app.use('/api', router);
 
