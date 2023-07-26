@@ -8,6 +8,4 @@ export interface IComment {
   repliesCount: number;
   retweetsCount: number;
   likesCount: number;
-  likes: Types.ObjectId;
-  original: Types.ObjectId;
 }
