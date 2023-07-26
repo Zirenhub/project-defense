@@ -4,7 +4,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import CredentialsModel from '../models/credentials';
 import ProfileModel from '../models/profile';
-import { IUserRequest } from '../middleware/jwtAuth';
 import mongoose from 'mongoose';
 
 const currentYear = new Date().getFullYear();
@@ -16,7 +15,11 @@ export const login = [
     .escape()
     .isEmail()
     .withMessage('Email is invalid.'),
-  body('password').trim(),
+  body('password')
+    .trim()
+    .notEmpty()
+    .escape()
+    .withMessage('Password cant be empty'),
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
@@ -74,7 +77,7 @@ export const login = [
         message: 'Wrong password.',
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         status: 'error',
         errors: null,
         message: err instanceof Error ? err.message : 'unknown',
@@ -83,7 +86,7 @@ export const login = [
   },
 ];
 
-export const logout = (req: IUserRequest, res: Response) => {
+export const logout = (req: Request, res: Response) => {
   res.clearCookie('token');
   return res.json({ status: 'success', data: null, message: null });
 };
@@ -91,6 +94,17 @@ export const logout = (req: IUserRequest, res: Response) => {
 export const signup = [
   body('firstName').trim().notEmpty().isLength({ min: 3, max: 12 }),
   body('lastName').trim().notEmpty().isLength({ min: 3, max: 12 }),
+  body('at')
+    .trim()
+    .notEmpty()
+    .isLength({ min: 3, max: 12 })
+    .custom(async (value) => {
+      return ProfileModel.exists({ at: value }).then((user) => {
+        if (user) {
+          return Promise.reject('"@" already in use');
+        }
+      });
+    }),
   body('email')
     .trim()
     .escape()
@@ -109,27 +123,29 @@ export const signup = [
     .trim()
     .isLength({ min: 8, max: 16 })
     .withMessage('Password must be at least 8 and at most 16 characters.'),
-  body('birthday')
-    .notEmpty()
-    .isISO8601()
-    .toDate()
-    .withMessage('Invalid date.')
-    .custom((value: Date) => {
-      const day = value.getDate();
-      const month = value.getMonth();
-      const year = value.getFullYear();
+  // body('birthday')
+  //   .notEmpty()
+  //   .isISO8601()
+  //   .toDate()
+  //   .withMessage('Invalid date.')
+  //   .custom((value: Date) => {
+  //     const day = value.getDate();
+  //     const month = value.getMonth();
+  //     const year = value.getFullYear();
 
-      if (day < 1 || day > 31) {
-        return Promise.reject('Birthday day is not valid.');
-      }
-      if (month < 0 || month > 11) {
-        return Promise.reject('Birthday month is not valid.');
-      }
-      if (year < 1900 || year > currentYear) {
-        return Promise.reject('Birthday year is not valid.');
-      }
-      return true;
-    }),
+  //     if (day < 1 || day > 31) {
+  //       return Promise.reject('Birthday day is not valid.');
+  //     }
+  //     if (month < 0 || month > 11) {
+  //       return Promise.reject('Birthday month is not valid.');
+  //     }
+  //     if (year < 1900 || year > currentYear) {
+  //       return Promise.reject('Birthday year is not valid.');
+  //     }
+  //     return true;
+  //   }),
+
+  // add profile pic and bio
 
   async (req: Request, res: Response) => {
     try {
@@ -141,13 +157,15 @@ export const signup = [
           message: null,
         });
       }
-      const { firstName, lastName, email, password } = req.body;
-      const birthday: Date = req.body.birthday;
+      const { firstName, lastName, email, password, at } = req.body;
+      // const birthday: Date = req.body.birthday;
+      const birthday = new Date();
 
       const newProfile = new ProfileModel({
         firstName,
         lastName,
         birthday,
+        at,
       });
       const newUser = new CredentialsModel({
         email,
@@ -164,13 +182,13 @@ export const signup = [
 
       await session.commitTransaction();
 
-      res.status(201).json({
+      return res.status(201).json({
         status: 'success',
         data: newProfile.toObject(),
         message: null,
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         status: 'error',
         errors: null,
         message: err instanceof Error ? err.message : 'unknown',
@@ -179,6 +197,6 @@ export const signup = [
   },
 ];
 
-export const me = async (req: IUserRequest, res: Response) => {
-  res.json({ status: 'success', data: req.user, message: null });
+export const me = async (req: Request, res: Response) => {
+  return res.json({ status: 'success', data: res.locals.user, message: null });
 };
