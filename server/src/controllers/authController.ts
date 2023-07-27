@@ -111,7 +111,7 @@ export const signup = [
     .isEmail()
     .withMessage('Wrong email format.')
     .normalizeEmail()
-    .isLength({ min: 2, max: 18 })
+    .isLength({ max: 18 })
     .custom(async (value) => {
       return CredentialsModel.exists({ email: value }).then((user) => {
         if (user) {
