@@ -8,9 +8,10 @@ declare global {
     interface Locals {
       tweet: Document<unknown, {}, ITweet> &
         Omit<
-          ITweet & {
-            _id: Types.ObjectId;
-          },
+          ITweet &
+            Required<{
+              _id: Types.ObjectId;
+            }>,
           never
         >;
       user: User;
