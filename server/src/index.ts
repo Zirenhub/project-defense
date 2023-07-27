@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 // routes
 import authRoute from './routes/authRoute';
 import tweetRoute from './routes/tweetRoute';
+import commentRoute from './routes/commentRoute';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 
 router.use('/auth', authRoute);
 router.use('/tweet', tweetRoute);
+router.use('/comment', commentRoute);
 
 app.use('/api', router);
 
