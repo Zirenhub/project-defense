@@ -15,10 +15,17 @@ const TweetSchema = new Schema<ITweet>(
     repliesCount: { type: Number, required: true, default: 0 },
     retweetsCount: { type: Number, required: true, default: 0 },
     likesCount: { type: Number, required: true, default: 0 },
-    original: {
-      type: Schema.Types.ObjectId,
-      enum: ['tweet', 'reply'],
-      default: null,
+    retweet: {
+      originalModel: {
+        type: String,
+        enum: ['tweet', 'reply', null],
+        default: null,
+      },
+      original: {
+        type: Schema.Types.ObjectId,
+        default: null,
+        refPath: 'retweet.originalModel',
+      },
     },
   },
   { timestamps: true }
