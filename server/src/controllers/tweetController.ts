@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import TweetModel from '../models/tweet';
 import LikeModel from '../models/likes';
 import CommentModel from '../models/comment';
+import mongoose from 'mongoose';
 
 export const create = [
   body('content').trim().notEmpty().isLength({ min: 1, max: 150 }),
@@ -96,7 +97,15 @@ export const reply = [
         content,
       });
       await newReply.populate('profile');
-      await newReply.save();
+
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
+      tweet.repliesCount = tweet.repliesCount + 1;
+      await newReply.save({ session });
+      await tweet.save({ session });
+
+      await session.commitTransaction();
 
       return res.status(200).json({
         status: 'success',
@@ -151,10 +160,17 @@ export const retweet = [
           original: tweet._id,
         },
       });
-
-      // increase retweets counter
       await newRetweet.populate('profile');
-      await newRetweet.save();
+
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
+      tweet.retweetsCount = tweet.retweetsCount + 1;
+      await newRetweet.save({ session });
+      await tweet.save({ session });
+
+      await session.commitTransaction();
+
       const newRetweetObject = newRetweet.toObject();
 
       return res.status(200).json({
