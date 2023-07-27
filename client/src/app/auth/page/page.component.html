@@ -1,0 +1,48 @@
+<ng-container *ngIf="currentOpenModal === 'signup'">
+  <app-signup (close)="closeModal()" />
+</ng-container>
+
+<ng-container *ngIf="currentOpenModal === 'login'">
+  <app-login />
+</ng-container>
+
+<div class="flex min-h-full relative">
+  <div class="bg-white basis-3/5 bg-auth-page-bg"></div>
+  <div class="flex-1 shink-0 bg-black flex flex-col text-white p-4 pt-[120px]">
+    <p class="font-bold text-4xl">Happening now</p>
+
+    <div class="flex flex-col mr-auto">
+      <p class="mt-10">Join Twitter today.</p>
+      <div class="flex flex-col mt-6 gap-3">
+        <button
+          disabled
+          class="bg-white font-bold text-black rounded-md min-w-[240px] px-9 py-2"
+        >
+          Sign up with Google
+        </button>
+        <button
+          disabled
+          class="bg-white font-bold text-black rounded-md min-w-[240px] px-9 py-2"
+        >
+          Sign up with Google
+        </button>
+      </div>
+      <p class="text-center">or</p>
+      <button
+        (click)="openModal('signup')"
+        class="bg-blue-500 font-bold rounded-md min-w-[240px] px-9 py-2"
+      >
+        Create account
+      </button>
+    </div>
+    <div class="mt-32">
+      <p>Already have an account?</p>
+      <button
+        (click)="openModal('login')"
+        class="border border-gray-800 font-bold text-blue-400 rounded-md min-w-[240px] px-9 py-2"
+      >
+        Sign in
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,77 @@
+<div
+  class="fixed left-2/4 top-2/4 -translate-x-2/4 -translate-y-2/4 bg-black z-10 rounded-md p-2 shadow-lg text-white"
+>
+  <img
+    src="assets/x.svg"
+    (click)="handleClose()"
+    class="h-5 w-5 hover:cursor-pointer"
+  />
+  <form
+    class="flex flex-col gap-4 p-5"
+    [formGroup]="form"
+    (ngSubmit)="register()"
+  >
+    <label for="firstName">
+      <input
+        class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
+        type="text"
+        name="firstName"
+        id="firstName"
+        placeholder="First Name Here"
+        formControlName="firstName"
+      />
+    </label>
+    <label for="lastName">
+      <input
+        class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
+        type="text"
+        name="lastName"
+        id="lastName"
+        placeholder="Last Name Here"
+        formControlName="lastName"
+      />
+    </label>
+    <label for="at">
+      <input
+        class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
+        type="text"
+        name="at"
+        id="at"
+        placeholder="Your @ Here"
+        formControlName="at"
+      />
+    </label>
+    <label for="email">
+      <input
+        class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
+        type="text"
+        name="email"
+        id="email"
+        placeholder="Email here"
+        formControlName="email"
+      />
+    </label>
+    <ng-container formGroupName="passwordGroup">
+      <label for="password">
+        <input
+          class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
+          type="text"
+          name="password"
+          id="password"
+          placeholder="Password here"
+          formControlName="password"
+        />
+      </label>
+      <label for="rePassword">
+        <input
+          class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
+          type="text"
+          name="rePassword"
+          id="rePassword"
+          placeholder="Repeat the password here"
+          formControlName="rePassword"
+        />
+      </label>
+    </ng-container>
+  </form>
+</div>
