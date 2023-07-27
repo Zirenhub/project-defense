@@ -1,17 +1,11 @@
 import { Response, NextFunction, Request } from 'express';
 import TweetModel from '../models/tweet';
+import { fillTweet } from './fillTweet';
 
 const getTweet = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tweetId = req.params.id;
-    const tweet = await TweetModel.findById(tweetId);
-    if (!tweet) {
-      return res.status(404).json({
-        status: 'error',
-        errors: null,
-        message: 'Tweet not found',
-      });
-    }
+    const tweet = await fillTweet(tweetId);
     res.locals.tweet = tweet;
     next();
   } catch (err) {
