@@ -10,3 +10,10 @@ export interface IProfile {
   birthday: Date;
   profilePic: string | null;
 }
+
+export interface MongooseProfile extends IProfile {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
