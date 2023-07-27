@@ -23,6 +23,7 @@ export const create = [
         content,
       });
       await newTweet.save();
+      await newTweet.populate('profile');
 
       return res.json({
         status: 'success',
@@ -94,12 +95,74 @@ export const reply = [
         tweet: tweet._id,
         content,
       });
-
+      await newReply.populate('profile');
       await newReply.save();
 
       return res.status(200).json({
         status: 'success',
-        data: newReply.toObject(),
+        data: { ...newReply.toObject(), tweet },
+        message: null,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 'error',
+        errors: null,
+        message: err instanceof Error ? err.message : 'unknown',
+      });
+    }
+  },
+];
+
+export const get = async (req: Request, res: Response) => {
+  try {
+    const tweet = res.locals.tweet;
+
+    return res.status(200).json({
+      status: 'success',
+      data: tweet.toObject(),
+      message: null,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 'error',
+      errors: null,
+      message: err instanceof Error ? err.message : 'unknown',
+    });
+  }
+};
+
+export const retweet = [
+  body('content')
+    .trim()
+    .notEmpty()
+    .withMessage('Retweet cant be empty')
+    .isLength({ min: 1, max: 150 })
+    .withMessage('min length must be 1 and max length must be 150'),
+  async (req: Request, res: Response) => {
+    try {
+      const tweet = res.locals.tweet;
+      const { content } = req.body;
+
+      const newRetweet = new TweetModel({
+        profile: res.locals.user._id,
+        content,
+        retweet: {
+          originalModel: 'tweet',
+          original: tweet._id,
+        },
+      });
+
+      // increase retweets counter
+      await newRetweet.populate('profile');
+      await newRetweet.save();
+      const newRetweetObject = newRetweet.toObject();
+
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          ...newRetweetObject,
+          retweet: { ...newRetweetObject.retweet, original: tweet },
+        },
         message: null,
       });
     } catch (err) {
