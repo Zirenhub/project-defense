@@ -156,7 +156,7 @@ export const retweet = [
         profile: res.locals.user._id,
         content,
         retweet: {
-          originalModel: 'tweet',
+          originalModel: 'Tweet',
           original: tweet._id,
         },
       });

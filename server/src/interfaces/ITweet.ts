@@ -9,7 +9,7 @@ export interface ITweet {
   retweetsCount: number;
   likesCount: number;
   retweet: {
-    originalModel: 'tweet' | 'reply' | null;
+    originalModel: 'Tweet' | 'Comment' | null;
     original: Types.ObjectId | null;
-  } | null;
+  };
 }

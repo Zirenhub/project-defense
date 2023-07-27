@@ -18,7 +18,7 @@ const TweetSchema = new Schema<ITweet>(
     retweet: {
       originalModel: {
         type: String,
-        enum: ['tweet', 'reply', null],
+        enum: ['Tweet', 'Comment', null],
         default: null,
       },
       original: {
