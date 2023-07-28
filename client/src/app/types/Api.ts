@@ -1,11 +1,11 @@
 import { User } from './User';
 
-export type ApiErrors = { msg: string }[] | null;
+export type ValidationErrors = { msg: string }[];
 
 export interface Api {
   status: 'success' | 'error';
   data?: any;
-  errors?: ApiErrors;
+  errors?: ValidationErrors | null;
   message: string | null;
 }
 
