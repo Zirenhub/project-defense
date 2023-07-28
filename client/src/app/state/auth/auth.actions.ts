@@ -1,4 +1,5 @@
 import { createAction, props } from '@ngrx/store';
+import { ValidationErrors } from 'src/app/types/Api';
 import { SignUp } from 'src/app/types/Auth';
 import { User } from 'src/app/types/User';
 
@@ -12,7 +13,7 @@ export const loginSuccess = createAction(
 );
 export const loginFailure = createAction(
   '[Auth] Login Failure',
-  props<{ error: string }>()
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
 );
 
 export const logout = createAction('[Auth] Logout');
@@ -31,5 +32,7 @@ export const signupSuccess = createAction(
 
 export const signupFailure = createAction(
   '[Auth] Signup Failure',
-  props<{ error: string }>()
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
 );
+
+export const clearError = createAction('[Auth] Clear Error');

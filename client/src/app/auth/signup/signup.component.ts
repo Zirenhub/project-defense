@@ -1,9 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
 import { passwordMatchValidator } from 'src/app/shared/validators/password-match-validator';
-import { AppState } from 'src/app/state/app.state';
-import { signup } from 'src/app/state/auth/auth.actions';
+import { SignUp } from 'src/app/types/Auth';
 
 type passwordGroupT = {
   password: string;
@@ -24,6 +22,7 @@ type form = {
 })
 export class SignupComponent {
   @Output() close = new EventEmitter();
+  @Output() register = new EventEmitter<SignUp>();
 
   form = this.fb.group({
     firstName: [
@@ -57,9 +56,9 @@ export class SignupComponent {
     ),
   });
 
-  constructor(private fb: FormBuilder, private store: Store<AppState>) {}
+  constructor(private fb: FormBuilder) {}
 
-  register() {
+  handleRegister() {
     this.form.markAllAsTouched();
 
     if (this.form.invalid) {
@@ -69,10 +68,8 @@ export class SignupComponent {
     const { firstName, lastName, at, email, passwordGroup } = this.form
       .value as form;
     const { password } = passwordGroup;
-    this.store.dispatch(signup({ firstName, lastName, at, email, password }));
-    // close modal if signup is successful
-    // show error and dont close otherwise
-    // console.log(this.store.select('auth'));
+
+    this.register.emit({ firstName, lastName, at, email, password });
   }
 
   handleClose() {

@@ -1,9 +1,17 @@
+<ng-container *ngIf="error || validationErrors">
+  <app-pop-up
+    type="error"
+    [content]="error"
+    [validationErrors]="validationErrors"
+  ></app-pop-up>
+</ng-container>
+
 <ng-container *ngIf="currentOpenModal === 'signup'">
-  <app-signup (close)="closeModal()" />
+  <app-signup (close)="closeModal()" (register)="register($event)" />
 </ng-container>
 
 <ng-container *ngIf="currentOpenModal === 'login'">
-  <app-login />
+  <app-login (close)="closeModal()" (login)="login($event)" />
 </ng-container>
 
 <div class="flex min-h-full relative">
