@@ -11,7 +11,7 @@
     [formGroup]="form"
     (ngSubmit)="register()"
   >
-    <label for="firstName">
+    <label for="firstName" class="relative">
       <input
         class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
         type="text"
@@ -20,8 +20,17 @@
         placeholder="First Name Here"
         formControlName="firstName"
       />
+      <ng-container
+        *ngIf="form.get('firstName')?.invalid && form.get('firstName')?.touched"
+      >
+        <app-validation-error
+          [control]="form.get('firstName')"
+          fieldName="First Name"
+          class="absolute top-2/4 -translate-y-2/4 w-fit whitespace-nowrap bg-red-500 text-white px-3 py-1 rounded-r-lg shadow-lg"
+        />
+      </ng-container>
     </label>
-    <label for="lastName">
+    <label for="lastName" class="relative">
       <input
         class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
         type="text"
@@ -30,8 +39,17 @@
         placeholder="Last Name Here"
         formControlName="lastName"
       />
+      <ng-container
+        *ngIf="form.get('lastName')?.invalid && form.get('lastName')?.touched"
+      >
+        <app-validation-error
+          [control]="form.get('lastName')"
+          fieldName="Last Name"
+          class="absolute top-2/4 -translate-y-2/4 w-fit whitespace-nowrap bg-red-500 text-white px-3 py-1 rounded-r-lg shadow-lg"
+        />
+      </ng-container>
     </label>
-    <label for="at">
+    <label for="at" class="relative">
       <input
         class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
         type="text"
@@ -40,38 +58,84 @@
         placeholder="Your @ Here"
         formControlName="at"
       />
+      <ng-container *ngIf="form.get('at')?.invalid && form.get('at')?.touched">
+        <app-validation-error
+          [control]="form.get('at')"
+          fieldName="@"
+          class="absolute top-2/4 -translate-y-2/4 w-fit whitespace-nowrap bg-red-500 text-white px-3 py-1 rounded-r-lg shadow-lg"
+        />
+      </ng-container>
     </label>
-    <label for="email">
+    <label for="email" class="relative">
       <input
         class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
-        type="text"
+        type="email"
         name="email"
         id="email"
         placeholder="Email here"
         formControlName="email"
       />
+      <ng-container
+        *ngIf="form.get('email')?.invalid && form.get('email')?.touched"
+      >
+        <app-validation-error
+          [control]="form.get('email')"
+          fieldName="Email"
+          class="absolute top-2/4 -translate-y-2/4 w-fit whitespace-nowrap bg-red-500 text-white px-3 py-1 rounded-r-lg shadow-lg"
+        />
+      </ng-container>
     </label>
     <ng-container formGroupName="passwordGroup">
-      <label for="password">
+      <label for="password" class="relative">
         <input
           class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
-          type="text"
+          type="password"
           name="password"
           id="password"
           placeholder="Password here"
           formControlName="password"
         />
+        <ng-container
+          *ngIf="
+            form.get('passwordGroup')?.get('password')?.invalid &&
+            form.get('passwordGroup')?.get('password')?.touched
+          "
+        >
+          <app-validation-error
+            [control]="form.get('passwordGroup')?.get('password') || null"
+            fieldName="Password"
+            class="absolute top-2/4 -translate-y-2/4 w-fit whitespace-nowrap bg-red-500 text-white px-3 py-1 rounded-r-lg shadow-lg"
+          />
+        </ng-container>
       </label>
-      <label for="rePassword">
+      <label for="rePassword" class="relative">
         <input
           class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
-          type="text"
+          type="password"
           name="rePassword"
           id="rePassword"
           placeholder="Repeat the password here"
           formControlName="rePassword"
         />
+        <ng-container
+          *ngIf="
+            form.get('passwordGroup')?.get('rePassword')?.invalid &&
+            form.get('passwordGroup')?.get('rePassword')?.touched
+          "
+        >
+          <app-validation-error
+            [control]="form.get('passwordGroup')?.get('rePassword') || null"
+            fieldName="Repeat Password"
+            class="absolute top-2/4 -translate-y-2/4 w-fit whitespace-nowrap bg-red-500 text-white px-3 py-1 rounded-r-lg shadow-lg"
+          />
+        </ng-container>
       </label>
     </ng-container>
+    <button
+      type="submit"
+      class="bg-white font-bold text-gray-800 px-2 py-1 rounded-md hover:bg-gray-200"
+    >
+      Sign up
+    </button>
   </form>
 </div>

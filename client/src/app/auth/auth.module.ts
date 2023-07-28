@@ -5,9 +5,10 @@ import { SignupComponent } from './signup/signup.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PageComponent } from './page/page.component';
 import { AuthRoutingModule } from './auth-routing';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [LoginComponent, SignupComponent, PageComponent],
-  imports: [CommonModule, AuthRoutingModule, ReactiveFormsModule],
+  imports: [CommonModule, AuthRoutingModule, ReactiveFormsModule, SharedModule],
 })
 export class AuthModule {}
