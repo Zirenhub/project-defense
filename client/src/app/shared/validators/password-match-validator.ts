@@ -9,8 +9,11 @@ export function passwordMatchValidator(
     const passOneVal = group.get(passOne);
     const passTwoVal = group.get(passTwo);
 
-    return passOneVal?.value === passTwoVal?.value
-      ? null
-      : { passwordMatch: true };
+    if (passOneVal?.value !== passTwoVal?.value) {
+      control.get(passTwo)?.setErrors({ passwordMatch: true });
+    } else {
+      control.get(passTwo)?.setErrors(null);
+    }
+    return null;
   };
 }
