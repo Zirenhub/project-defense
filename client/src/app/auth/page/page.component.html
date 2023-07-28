@@ -1,6 +1,7 @@
 <ng-container *ngIf="error || validationErrors">
   <app-pop-up
     type="error"
+    (removeErrors)="removeErrors()"
     [content]="error"
     [validationErrors]="validationErrors"
   ></app-pop-up>

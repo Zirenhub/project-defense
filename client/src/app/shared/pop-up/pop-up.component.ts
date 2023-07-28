@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ValidationErrors } from 'src/app/types/Api';
 
 @Component({
@@ -6,6 +6,7 @@ import { ValidationErrors } from 'src/app/types/Api';
   templateUrl: './pop-up.component.html',
 })
 export class PopUpComponent implements OnInit {
+  @Output() removeErrors = new EventEmitter();
   @Input() type: 'error' | 'default' = 'default';
   @Input() content: string | null = null;
   @Input() validationErrors: ValidationErrors | null = null;
@@ -17,8 +18,7 @@ export class PopUpComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.content = null;
-      this.validationErrors = null;
+      this.removeErrors.emit();
     }, 5000);
   }
 }

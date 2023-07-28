@@ -55,7 +55,7 @@ export class PageComponent implements OnDestroy {
     this.currentOpenModal = modal;
   }
 
-  closeModal() {
+  removeErrors() {
     if (this.error || this.validationErrors) {
       // if there is an error, clear it so when the next time modal is opened
       // we dont show the error again.
@@ -63,6 +63,10 @@ export class PageComponent implements OnDestroy {
       this.error = null;
       this.validationErrors = null;
     }
+  }
+
+  closeModal() {
+    this.removeErrors();
     this.currentOpenModal = null;
   }
 
