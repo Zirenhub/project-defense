@@ -9,17 +9,17 @@ import mongoose from 'mongoose';
 const currentYear = new Date().getFullYear();
 
 export const login = [
-  body('email')
-    .normalizeEmail()
+  body('email', 'Invalid Email')
     .trim()
-    .escape()
     .isEmail()
-    .withMessage('Email is invalid.'),
-  body('password')
+    .withMessage('Wrong email format.')
+    .normalizeEmail()
+    .isLength({ max: 18 })
+    .withMessage('Email is too long'),
+  body('password', 'Invalid password')
     .trim()
-    .notEmpty()
-    .escape()
-    .withMessage('Password cant be empty'),
+    .isLength({ min: 8, max: 16 })
+    .withMessage('Password must be at least 8 and at most 16 characters.'),
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
@@ -92,11 +92,10 @@ export const logout = (req: Request, res: Response) => {
 };
 
 export const signup = [
-  body('firstName').trim().notEmpty().isLength({ min: 3, max: 12 }),
-  body('lastName').trim().notEmpty().isLength({ min: 3, max: 12 }),
-  body('at')
+  body('firstName', 'Invalid first name').trim().isLength({ min: 3, max: 12 }),
+  body('lastName', 'Invalid last name').trim().isLength({ min: 3, max: 12 }),
+  body('at', 'Invalid @')
     .trim()
-    .notEmpty()
     .isLength({ min: 3, max: 12 })
     .custom(async (value) => {
       return ProfileModel.exists({ at: value }).then((user) => {
@@ -105,13 +104,13 @@ export const signup = [
         }
       });
     }),
-  body('email')
+  body('email', 'Invalid Email')
     .trim()
-    .escape()
     .isEmail()
     .withMessage('Wrong email format.')
     .normalizeEmail()
     .isLength({ max: 18 })
+    .withMessage('Email is too long')
     .custom(async (value) => {
       return CredentialsModel.exists({ email: value }).then((user) => {
         if (user) {
