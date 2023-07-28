@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import http from 'http';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+
 // routes
 import authRoute from './routes/authRoute';
 import tweetRoute from './routes/tweetRoute';
@@ -13,11 +15,19 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 const PORT = 3000;
-const URI = process.env.DB_URI as string;
+
+// Transactions dont work without replicaSet query
+const URI = 'mongodb://127.0.0.1:27017/project-defense?replicaSet=rs0';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: 'http://localhost:4200',
+    credentials: true,
+  })
+);
 
 router.use('/auth', authRoute);
 router.use('/tweet', tweetRoute);
