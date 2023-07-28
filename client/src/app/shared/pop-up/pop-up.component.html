@@ -1,0 +1,15 @@
+<div class="fixed top-10 z-20 left-2/4 -translate-x-2/4">
+  <div *ngIf="validationErrors" class="flex flex-col gap-3">
+    <p
+      *ngFor="let error of validationErrors"
+      [ngClass]="type === 'error' ? errorClass : defaultClass"
+    >
+      {{ error.msg }}
+    </p>
+  </div>
+  <div *ngIf="content" class="ml-auto">
+    <p [ngClass]="type === 'error' ? errorClass : defaultClass">
+      {{ content }}
+    </p>
+  </div>
+</div>

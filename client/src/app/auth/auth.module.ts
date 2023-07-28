@@ -6,6 +6,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { PageComponent } from './page/page.component';
 import { AuthRoutingModule } from './auth-routing';
 import { SharedModule } from '../shared/shared.module';
+import { PopUpComponent } from '../shared/pop-up/pop-up.component';
 
 @NgModule({
   declarations: [LoginComponent, SignupComponent, PageComponent],
