@@ -1,1 +1,59 @@
-<div class="fixed left-2/4 top-2/4"></div>
+<div
+  class="fixed left-2/4 top-2/4 -translate-x-2/4 -translate-y-2/4 bg-black z-10 rounded-md p-2 shadow-lg text-white"
+>
+  <img
+    src="assets/x.svg"
+    (click)="handleClose()"
+    class="h-5 w-5 hover:cursor-pointer"
+  />
+  <form
+    class="flex flex-col gap-4 p-5"
+    [formGroup]="form"
+    (ngSubmit)="handleLogin()"
+  >
+    <label for="email" class="relative">
+      <input
+        class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
+        type="email"
+        name="email"
+        id="email"
+        placeholder="Email here"
+        formControlName="email"
+      />
+      <ng-container
+        *ngIf="form.get('email')?.invalid && form.get('email')?.touched"
+      >
+        <app-validation-error
+          [control]="form.get('email')"
+          fieldName="Email"
+          class="absolute top-2/4 -translate-y-2/4 w-fit whitespace-nowrap bg-red-500 text-white px-3 py-1 rounded-r-lg shadow-lg"
+        />
+      </ng-container>
+    </label>
+    <label for="password" class="relative">
+      <input
+        class="bg-transparent text-lg border border-gray-700 px-2 py-1 rounded-md"
+        type="password"
+        name="password"
+        id="password"
+        placeholder="Password here"
+        formControlName="password"
+      />
+      <ng-container
+        *ngIf="form.get('password')?.invalid && form.get('password')?.touched"
+      >
+        <app-validation-error
+          [control]="form.get('password')"
+          fieldName="Password"
+          class="absolute top-2/4 -translate-y-2/4 w-fit whitespace-nowrap bg-red-500 text-white px-3 py-1 rounded-r-lg shadow-lg"
+        />
+      </ng-container>
+    </label>
+    <button
+      type="submit"
+      class="bg-white font-bold text-gray-800 px-2 py-1 rounded-md hover:bg-gray-200"
+    >
+      Log in
+    </button>
+  </form>
+</div>

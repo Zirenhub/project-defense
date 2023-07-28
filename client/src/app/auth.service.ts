@@ -1,13 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { SignUp } from './types/Auth';
-import { User } from './types/User';
+import { LogIn, SignUp } from './types/Auth';
+import { SignUpRes } from './types/Api';
 
 @Injectable()
 export class AuthService {
   constructor(private http: HttpClient) {}
 
   signup(data: SignUp) {
-    return this.http.post<User>('/api/auth/signup', data);
+    return this.http.post<SignUpRes>('/api/auth/signup', { asd: 'asd' });
+  }
+
+  login(data: LogIn) {
+    return this.http.post<SignUpRes>('/api/auth/login', { asd: 'asd' });
   }
 }
