@@ -1,3 +1,5 @@
+import { User } from './User';
+
 export interface SignUp {
   firstName: string;
   lastName: string;
@@ -9,4 +11,9 @@ export interface SignUp {
 export interface LogIn {
   email: string;
   password: string;
+}
+
+export interface JWTUser extends User {
+  iat: number;
+  exp: number;
 }

@@ -1,3 +1,4 @@
+import { JWTUser } from './Auth';
 import { User } from './User';
 
 export type ValidationErrors = { msg: string }[];
@@ -11,4 +12,8 @@ export interface Api {
 
 export interface SignUpRes extends Api {
   data: User;
+}
+
+export interface CheckAuthRes extends Api {
+  data: JWTUser;
 }
