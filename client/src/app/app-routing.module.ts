@@ -3,17 +3,21 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './shared/guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: '/home' },
   {
     path: 'auth',
     loadChildren: () => import('./auth/auth.module').then((m) => m.AuthModule),
+    canActivate: [AuthGuard],
   },
   {
     path: '',
-    canActivate: [AuthGuard],
-    loadChildren: () => import('./core/core.module').then((m) => m.CoreModule),
+    pathMatch: 'full',
+    redirectTo: '/home',
   },
-  // { path: '**', component: NotFoundComponent },
+  {
+    path: '',
+    loadChildren: () => import('./core/core.module').then((m) => m.CoreModule),
+    canActivate: [AuthGuard],
+  },
 ];
 
 @NgModule({

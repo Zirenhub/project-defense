@@ -1,33 +1,41 @@
 import { Injectable } from '@angular/core';
 import {
-  ActivatedRouteSnapshot,
   CanActivate,
-  Router,
+  ActivatedRouteSnapshot,
   RouterStateSnapshot,
+  Router,
 } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { filter, map, take } from 'rxjs/operators';
 import { AppState } from 'src/app/state/app.state';
-import { selectAuthUser } from 'src/app/state/auth/auth.selectors';
+import {
+  selectAuthStatus,
+  selectAuthUser,
+} from 'src/app/state/auth/auth.selectors';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private store: Store<AppState>, private router: Router) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): Observable<boolean> {
-    return this.store.select(selectAuthUser).pipe(
-      map((user) => {
-        if (user) {
-          // User is authenticated, allow navigation
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    return this.store.select(selectAuthStatus).pipe(
+      // wait for status
+      filter((status) => status !== 'pending'),
+      map((status) => {
+        if (status === 'success') {
+          // User is authenticated, allow access to all routes except /auth
+          if (state.url === '/auth') {
+            this.router.navigate(['/home']);
+            return false;
+          }
           return true;
         } else {
-          // User is not authenticated, redirect to /auth
-          this.router.navigateByUrl('/auth');
-          return false;
+          // Authentication check failed, allow access to /auth only
+          if (state.url !== '/auth') {
+            this.router.navigate(['/auth']);
+            return false;
+          }
+          return true;
         }
       })
     );
