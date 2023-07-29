@@ -12,6 +12,7 @@ import { appInterceptorProvider } from './app-interceptor';
 import { AuthEffects } from './state/auth/auth.effects';
 import { SharedModule } from './shared/shared.module';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { AuthGuard } from './shared/guards/auth.guard';
 
 @NgModule({
   declarations: [AppComponent],
@@ -24,7 +25,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
     EffectsModule.forRoot([AuthEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
   ],
-  providers: [AuthService, appInterceptorProvider],
+  providers: [AuthService, appInterceptorProvider, AuthGuard],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
