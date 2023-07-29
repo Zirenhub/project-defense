@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import * as AuthActions from './auth.actions';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 import { AuthService } from '../../auth.service';
 
 @Injectable()
@@ -32,6 +32,20 @@ export class AuthEffects {
           )
         )
       )
+    )
+  );
+
+  checkAuth$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.checkAuth),
+      switchMap(() => {
+        return this.authService.checkAuth().pipe(
+          map((res) => AuthActions.loginSuccess({ user: res.data })),
+          catchError((error) =>
+            of(AuthActions.loginFailure(this.getErrors(error)))
+          )
+        );
+      })
     )
   );
 

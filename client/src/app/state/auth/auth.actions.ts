@@ -35,4 +35,6 @@ export const signupFailure = createAction(
   props<{ error?: string; validationErrors?: ValidationErrors }>()
 );
 
+export const checkAuth = createAction('[Auth] Check Auth');
+
 export const clearError = createAction('[Auth] Clear Error');
