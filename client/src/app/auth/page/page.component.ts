@@ -19,36 +19,28 @@ import { LogIn, SignUp } from 'src/app/types/Auth';
 export class PageComponent implements OnDestroy {
   currentOpenModal: 'signup' | 'login' | null = null;
 
-  signUpError$: Observable<string | null>;
-  signUpValidationErrors$: Observable<ValidationErrors | null>;
-  signUpStatus$: Observable<AuthStateStatus>;
+  error$: Observable<string | null>;
+  validationErrors$: Observable<ValidationErrors | null>;
 
-  private signUpStatusSub: Subscription;
+  private errorSubscription: Subscription;
+  private validationErrorsSubscription: Subscription;
+
   error: string | null = null;
   validationErrors: ValidationErrors | null = null;
 
   constructor(private store: Store<AppState>) {
-    this.signUpError$ = this.store.select(selectAuthError);
-    this.signUpValidationErrors$ = this.store.select(
-      selectAuthValidationErrors
-    );
-    this.signUpStatus$ = this.store.select(selectAuthStatus);
+    this.error$ = this.store.select(selectAuthError);
+    this.validationErrors$ = this.store.select(selectAuthValidationErrors);
 
-    this.signUpStatusSub = this.signUpStatus$.subscribe((status) => {
-      if (status === 'success') {
-        // signup or login, doesnt matter, close the modal
-        this.closeModal();
-      } else if (status === 'error') {
-        // only take the first error emitted and then automatically unsubscribe
-        this.signUpError$.pipe(take(1)).subscribe((error) => {
-          this.error = error;
-        });
-      } else if (status === 'validationErrors') {
-        this.signUpValidationErrors$.pipe(take(1)).subscribe((error) => {
-          this.validationErrors = error;
-        });
-      }
+    this.errorSubscription = this.error$.subscribe((error) => {
+      this.error = error;
     });
+
+    this.validationErrorsSubscription = this.validationErrors$.subscribe(
+      (validationErrors) => {
+        this.validationErrors = validationErrors;
+      }
+    );
   }
 
   openModal(modal: 'signup' | 'login') {
@@ -60,8 +52,6 @@ export class PageComponent implements OnDestroy {
       // if there is an error, clear it so when the next time modal is opened
       // we dont show the error again.
       this.store.dispatch(clearError());
-      this.error = null;
-      this.validationErrors = null;
     }
   }
 
@@ -79,6 +69,7 @@ export class PageComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.signUpStatusSub.unsubscribe();
+    this.errorSubscription.unsubscribe();
+    this.validationErrorsSubscription.unsubscribe();
   }
 }
