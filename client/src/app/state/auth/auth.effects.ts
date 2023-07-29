@@ -51,15 +51,24 @@ export class AuthEffects {
     { dispatch: false } // Set dispatch to false so it doesn't trigger any additional actions
   );
 
+  // checkAuthFailure$ = createEffect(
+  //   () =>
+  //     this.actions$.pipe(
+  //       ofType(AuthActions.checkAuthFailure),
+  //       tap(() => {
+  //         this.router.navigateByUrl('/auth');
+  //       })
+  //     ),
+  //   { dispatch: false }
+  // );
+
   checkAuth$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.checkAuth),
       switchMap(() => {
         return this.authService.checkAuth().pipe(
-          map((res) => AuthActions.loginSuccess({ user: res.data })),
-          catchError((error) =>
-            of(AuthActions.loginFailure(this.getErrors(error)))
-          )
+          map((res) => AuthActions.checkAuthSuccess({ user: res.data })),
+          catchError((error) => of(AuthActions.checkAuthFailure()))
         );
       })
     )

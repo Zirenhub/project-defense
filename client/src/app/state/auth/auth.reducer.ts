@@ -1,6 +1,8 @@
 import { createReducer, on } from '@ngrx/store';
 import { User } from 'src/app/types/User';
 import {
+  checkAuthFailure,
+  checkAuthSuccess,
   clearError,
   loginFailure,
   loginSuccess,
@@ -60,6 +62,11 @@ const assignFailure = (
 
 export const authReducer = createReducer(
   initialState,
+  on(checkAuthSuccess, (state, { user }) => ({
+    ...state,
+    user,
+    status: 'success' as const,
+  })),
   on(loginSuccess, (state, { user }) => ({
     ...state,
     user,
@@ -81,6 +88,11 @@ export const authReducer = createReducer(
   on(loginFailure, (state, { error, validationErrors }) => {
     return assignFailure(state, { error, validationErrors });
   }),
+  on(checkAuthFailure, (state) => ({
+    ...state,
+    error: 'Unauthorized',
+    status: 'error' as const,
+  })),
   on(clearError, (state) => ({
     ...state,
     error: null,

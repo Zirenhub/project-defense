@@ -37,4 +37,11 @@ export const signupFailure = createAction(
 
 export const checkAuth = createAction('[Auth] Check Auth');
 
+export const checkAuthSuccess = createAction(
+  '[Auth] Check Auth Success',
+  props<{ user: User }>()
+);
+
+export const checkAuthFailure = createAction('[Auth] Check Auth Failure');
+
 export const clearError = createAction('[Auth] Clear Error');
