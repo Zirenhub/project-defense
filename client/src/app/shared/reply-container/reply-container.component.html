@@ -1,0 +1,50 @@
+<div
+  class="flex gap-3 hover:bg-gray-200 transition-all py-3 px-3 border-b cursor-pointer"
+>
+  <img
+    src="../../../assets/default-pfp.svg"
+    class="w-[50px] h-[50px] rounded-full"
+  />
+  <div class="flex flex-col w-full">
+    <div class="flex flex-col">
+      <p>
+        <span class="font-bold"
+          >{{ comment?.profile?.firstName }}
+          {{ comment?.profile?.lastName }}</span
+        ><span class="text-gray-400 pl-2">@{{ comment?.profile?.at }}</span>
+      </p>
+    </div>
+    <p class="pb-1">{{ comment?.content || comment?.image }}</p>
+    <!-- ADD CONTENT HERE -->
+
+    <div class="flex justify-between items-center pr-[300px] text-gray-500">
+      <button
+        class="flex gap-2 hover:text-blue-400"
+        (click)="handleReply($event)"
+      >
+        <app-svg-reply fillColor="gray" class="h-5 w-5" />
+        <p>{{ comment?.repliesCount }}</p>
+      </button>
+      <button
+        class="flex gap-2 hover:text-green-400"
+        (click)="handleRetweet($event)"
+      >
+        <app-svg-retweet
+          [fillColor]="comment?.isRetweeted ? 'green' : 'gray'"
+          class="h-5 w-5"
+        />
+        <p>{{ comment?.retweetsCount }}</p>
+      </button>
+      <button
+        class="flex gap-2 hover:text-red-400"
+        (click)="handleLike($event)"
+      >
+        <app-svg-like
+          [fillColor]="comment?.isLiked ? 'red' : 'gray'"
+          class="h-4 w-4"
+        />
+        <p>{{ comment?.likesCount }}</p>
+      </button>
+    </div>
+  </div>
+</div>
