@@ -162,11 +162,11 @@ export const get = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 });
 
     const modifiedTweet = await getExtraTweetInfo([tweet], userId);
-    const modifedReplies = await getExtraTweetInfo(replies, userId);
+    const modifiedReplies = await getExtraTweetInfo(replies, userId);
 
     return res.status(200).json({
       status: 'success',
-      data: { tweet: modifiedTweet[0], replies: modifedReplies },
+      data: { tweet: modifiedTweet[0], replies: modifiedReplies },
       message: null,
     });
   } catch (err) {
