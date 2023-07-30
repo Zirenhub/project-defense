@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-1">
   <div *ngFor="let tweet of timeline" (click)="openTweet(tweet._id)">
-    <app-tweet [tweet]="tweet" />
+    <app-tweet-container [tweet]="tweet" (reply)="openReplyModal($event)" />
   </div>
 </div>
