@@ -32,9 +32,9 @@
     height: 100%;
   }
 
-  /* app-page {
+  app-page {
     flex-grow: 1;
-  } */
+  }
 
   app-layout {
     flex-grow: 1;
