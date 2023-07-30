@@ -44,4 +44,4 @@ export const checkAuthSuccess = createAction(
 
 export const checkAuthFailure = createAction('[Auth] Check Auth Failure');
 
-export const clearError = createAction('[Auth] Clear Error');
+export const clearAuthError = createAction('[Auth] Clear Error');
