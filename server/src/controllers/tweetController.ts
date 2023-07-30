@@ -5,7 +5,7 @@ import LikeModel from '../models/likes';
 import CommentModel from '../models/comment';
 import mongoose, { Document } from 'mongoose';
 
-const getExtraTweetInfo = async (tweets: Document[], userId: string) => {
+export const getExtraTweetInfo = async (tweets: Document[], userId: string) => {
   const filledTweets = await Promise.all(
     tweets.map(async (tweet) => {
       const isLiked = await LikeModel.exists({
@@ -25,7 +25,7 @@ const getExtraTweetInfo = async (tweets: Document[], userId: string) => {
     })
   );
 
-  return filledTweets.length === 1 ? filledTweets[0] : filledTweets;
+  return filledTweets;
 };
 
 export const create = [
@@ -82,7 +82,7 @@ export const like = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       status: 'success',
-      data: tweet.toObject(),
+      data: { _id: tweet._id, likeOrDislike: response.likeOrDislike },
       message: null,
     });
   } catch (err) {
@@ -132,7 +132,12 @@ export const reply = [
 
       return res.status(200).json({
         status: 'success',
-        data: { ...newReply.toObject(), tweet },
+        data: {
+          ...newReply.toObject(),
+          isLiked: false,
+          isRetweeted: false,
+          tweet,
+        },
         message: null,
       });
     } catch (err) {
@@ -154,14 +159,14 @@ export const get = async (req: Request, res: Response) => {
       parent: null,
     })
       .populate('profile')
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: -1 });
 
     const modifiedTweet = await getExtraTweetInfo([tweet], userId);
     const modifedReplies = await getExtraTweetInfo(replies, userId);
 
     return res.status(200).json({
       status: 'success',
-      data: { tweet: modifiedTweet, replies: modifedReplies },
+      data: { tweet: modifiedTweet[0], replies: modifedReplies },
       message: null,
     });
   } catch (err) {
