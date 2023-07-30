@@ -4,7 +4,7 @@ import { User } from './User';
 export interface Tweet {
   retweet: {
     originalModel: 'tweet' | 'reply' | null;
-    original: Tweet | Reply;
+    original: Tweet | Reply | null;
   };
   _id: string;
   profile: User;
