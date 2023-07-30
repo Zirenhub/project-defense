@@ -3,10 +3,33 @@ import { body, validationResult } from 'express-validator';
 import TweetModel from '../models/tweet';
 import LikeModel from '../models/likes';
 import CommentModel from '../models/comment';
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+
+const getExtraTweetInfo = async (tweets: Document[], userId: string) => {
+  const filledTweets = await Promise.all(
+    tweets.map(async (tweet) => {
+      const isLiked = await LikeModel.exists({
+        tweet: tweet._id,
+        likes: userId,
+      });
+      const isRetweeted = await TweetModel.find({
+        'retweet.original': tweet._id,
+        profile: userId,
+      });
+
+      return {
+        ...tweet.toObject(),
+        isLiked: isLiked ? true : false,
+        isRetweeted: isRetweeted.length > 0 ? true : false,
+      };
+    })
+  );
+
+  return filledTweets.length === 1 ? filledTweets[0] : filledTweets;
+};
 
 export const create = [
-  body('content').trim().notEmpty().isLength({ min: 1, max: 150 }),
+  body('content').isLength({ min: 1, max: 150 }),
 
   async (req: Request, res: Response) => {
     try {
@@ -125,10 +148,20 @@ export const reply = [
 export const get = async (req: Request, res: Response) => {
   try {
     const tweet = res.locals.tweet;
+    const userId = res.locals.user._id;
+    const replies = await CommentModel.find({
+      tweet: tweet._id,
+      parent: null,
+    })
+      .populate('profile')
+      .sort({ createdAt: 1 });
+
+    const modifiedTweet = await getExtraTweetInfo([tweet], userId);
+    const modifedReplies = await getExtraTweetInfo(replies, userId);
 
     return res.status(200).json({
       status: 'success',
-      data: tweet.toObject(),
+      data: { tweet: modifiedTweet, replies: modifedReplies },
       message: null,
     });
   } catch (err) {
@@ -143,12 +176,18 @@ export const get = async (req: Request, res: Response) => {
 export const retweet = [
   body('content')
     .trim()
-    .notEmpty()
-    .withMessage('Retweet cant be empty')
     .isLength({ min: 1, max: 150 })
-    .withMessage('min length must be 1 and max length must be 150'),
+    .withMessage('Retweet content length must be 1 and max length must be 150'),
   async (req: Request, res: Response) => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          status: 'error',
+          errors: errors.array(),
+          message: null,
+        });
+      }
       const tweet = res.locals.tweet;
       const { content } = req.body;
 
@@ -190,3 +229,32 @@ export const retweet = [
     }
   },
 ];
+
+export const timeline = async (req: Request, res: Response) => {
+  try {
+    const userId = res.locals.user._id;
+    const timeline = await TweetModel.find()
+      .sort({ createdAt: -1 })
+      .populate('profile')
+      .populate({
+        path: 'retweet.original',
+        populate: {
+          path: 'profile',
+        },
+      });
+
+    const modifiedTimeline = await getExtraTweetInfo(timeline, userId);
+
+    return res.status(200).json({
+      status: 'success',
+      data: modifiedTimeline,
+      message: null,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 'error',
+      errors: null,
+      message: err instanceof Error ? err.message : 'unknown',
+    });
+  }
+};
