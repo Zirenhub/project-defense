@@ -10,7 +10,7 @@ const routes: Routes = [
     component: LayoutComponent,
     children: [
       { path: 'home', component: FeedComponent },
-      { path: ':id', component: TweetComponent },
+      { path: 'tweet/:id', component: TweetComponent },
     ],
   },
 ];
