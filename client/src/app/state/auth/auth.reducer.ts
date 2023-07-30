@@ -3,7 +3,7 @@ import { User } from 'src/app/types/User';
 import {
   checkAuthFailure,
   checkAuthSuccess,
-  clearError,
+  clearAuthError,
   loginFailure,
   loginSuccess,
   logoutSuccess,
@@ -93,7 +93,7 @@ export const authReducer = createReducer(
     error: 'Unauthorized',
     status: 'error' as const,
   })),
-  on(clearError, (state) => ({
+  on(clearAuthError, (state) => ({
     ...state,
     error: null,
     validationErrors: null,

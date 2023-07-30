@@ -5,6 +5,7 @@ import * as AuthActions from './auth.actions';
 import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '../../auth.service';
 import { Router } from '@angular/router';
+import { getErrors } from '../getErrors';
 
 @Injectable()
 export class AuthEffects {
@@ -16,25 +17,13 @@ export class AuthEffects {
 
   // this.actions$ is an observable that emits the actions dispatched in the application
 
-  getErrors(error: any) {
-    if (error.error.errors) {
-      return { validationErrors: error.error.errors };
-    }
-    if (error.error.message) {
-      return { error: error.error.message };
-    }
-    return { error: 'Unknown error' };
-  }
-
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
       mergeMap((action) =>
         this.authService.login(action).pipe(
           map((res) => AuthActions.loginSuccess({ user: res.data })),
-          catchError((error) =>
-            of(AuthActions.loginFailure(this.getErrors(error)))
-          )
+          catchError((error) => of(AuthActions.loginFailure(getErrors(error))))
         )
       )
     )
@@ -92,9 +81,7 @@ export class AuthEffects {
       mergeMap((action) =>
         this.authService.signup(action).pipe(
           map((res) => AuthActions.signupSuccess({ user: res.data })),
-          catchError((error) =>
-            of(AuthActions.signupFailure(this.getErrors(error)))
-          )
+          catchError((error) => of(AuthActions.signupFailure(getErrors(error))))
         )
       )
     )

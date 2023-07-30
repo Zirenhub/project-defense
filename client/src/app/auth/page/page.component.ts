@@ -1,12 +1,10 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription, take } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AppState } from 'src/app/state/app.state';
-import { clearError, login, signup } from 'src/app/state/auth/auth.actions';
-import { AuthStateStatus } from 'src/app/state/auth/auth.reducer';
+import { clearAuthError, login, signup } from 'src/app/state/auth/auth.actions';
 import {
   selectAuthError,
-  selectAuthStatus,
   selectAuthValidationErrors,
 } from 'src/app/state/auth/auth.selectors';
 import { ValidationErrors } from 'src/app/types/Api';
@@ -51,7 +49,7 @@ export class PageComponent implements OnDestroy {
     if (this.error || this.validationErrors) {
       // if there is an error, clear it so when the next time modal is opened
       // we dont show the error again.
-      this.store.dispatch(clearError());
+      this.store.dispatch(clearAuthError());
     }
   }
 
