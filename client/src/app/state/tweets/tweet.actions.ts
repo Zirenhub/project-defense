@@ -86,4 +86,16 @@ export const likeReplyFailure = createAction(
   props<{ error: string }>()
 );
 
+export const openReplyCommentModal = createAction(
+  '[Tweet] Open Reply Comment Modal',
+  props<{ id: string }>()
+);
+
+export const openReplyTweetModal = createAction(
+  '[Tweet] Open Reply Tweet Modal',
+  props<{ id: string }>()
+);
+
+export const closeReplyingToModal = createAction('[Tweet] Close Reply Modal');
+
 export const clearTweetError = createAction('[Tweet] Clear Tweet Error');

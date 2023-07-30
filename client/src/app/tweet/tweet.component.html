@@ -1,4 +1,4 @@
-<div *ngIf="tweet$ | async as tweet; else loading" class="flex flex-col p-3">
+<div *ngIf="tweet; else loading" class="flex flex-col p-3 border-b">
   <div class="flex items-center gap-5">
     <button
       (click)="back()"
@@ -66,13 +66,12 @@
       Reply
     </button>
   </div>
-
-  <!-- Display replies if available -->
-  <div *ngIf="replies$ | async as replies" class="flex flex-col">
-    <ng-container *ngFor="let reply of replies">
-      <app-tweet [tweet]="reply" (like)="like($event, 'reply')" />
-    </ng-container>
-  </div>
+</div>
+<!-- Display replies if available -->
+<div *ngIf="replies" class="flex flex-col">
+  <ng-container *ngFor="let reply of replies">
+    <app-reply-container [comment]="reply" (like)="like($event, 'reply')" />
+  </ng-container>
 </div>
 
 <ng-template #loading>

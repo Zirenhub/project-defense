@@ -1,27 +1,47 @@
 import { createSelector } from '@ngrx/store';
 import { AppState } from '../app.state';
-import { TweetState } from './tweet.reducer';
+import { IReply, Single, Timeline, TweetState } from './tweet.reducer';
 
 // selectTweets method to select just part of main app state
 export const selectTweets = (state: AppState) => state.tweets;
-// selector to return tweets data
-export const selectAllTweets = createSelector(
+
+// Selector to get the content
+export const selectContent = createSelector(
   selectTweets,
-  (state: TweetState) => state.tweets
+  (state: TweetState) => state.content
 );
+
+// Selector to get the tweetType
+export const selectTweetType = createSelector(
+  selectTweets,
+  (state: TweetState) => state.tweetType
+);
+
+export const selectTweetTimline = createSelector(
+  selectContent,
+  selectTweetType,
+  (content, tweetType) => {
+    if (tweetType === 'timeline') {
+      return content as Timeline;
+    }
+    return null;
+  }
+);
+
+export const selectTweetSingle = createSelector(
+  selectContent,
+  selectTweetType,
+  (content, tweetType) => {
+    if (tweetType === 'single') {
+      return content as Single;
+    }
+    return null;
+  }
+);
+
 export const selectTweetsStatus = createSelector(
   selectTweets,
   (state: TweetState) => state.status
-);
-
-export const selectTweet = createSelector(
-  selectTweets,
-  (state: TweetState) => state.tweets[0]
-);
-
-export const selectTweetReplies = createSelector(
-  selectTweets,
-  (state: TweetState) => state.replies
 );
 
 export const selectTweetError = createSelector(
@@ -32,4 +52,14 @@ export const selectTweetError = createSelector(
 export const selectTweetValidationErrors = createSelector(
   selectTweets,
   (state: TweetState) => state.validationErrors
+);
+
+export const selectReplyingToTweet = createSelector(
+  selectTweets,
+  (state: TweetState) => state.replyingToTweet
+);
+
+export const selectReplyingToReply = createSelector(
+  selectTweets,
+  (state: TweetState) => state.replyingToReply
 );

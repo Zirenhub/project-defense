@@ -10,12 +10,10 @@ import {
   likeTweet,
   postReply,
 } from '../state/tweets/tweet.actions';
-import { Tweet } from '../types/Tweet';
+import { selectTweetSingle } from '../state/tweets/tweet.selectors';
+import { Single } from '../state/tweets/tweet.reducer';
 import { Reply } from '../types/Reply';
-import {
-  selectTweetReplies,
-  selectTweet,
-} from '../state/tweets/tweet.selectors';
+import { Tweet } from '../types/Tweet';
 
 @Component({
   selector: 'app-singular-tweet',
@@ -23,12 +21,14 @@ import {
 })
 export class TweetComponent implements OnInit, OnDestroy {
   // sub to error and show error pop up
-
   private routeSub: Subscription;
   tweetId?: string;
 
-  tweet$: Observable<Tweet>;
-  replies$: Observable<Reply[]>;
+  tweet$: Observable<Single | null>;
+  tweetSub: Subscription;
+
+  tweet?: Tweet;
+  replies?: Reply[];
 
   constructor(
     private route: ActivatedRoute,
@@ -39,8 +39,14 @@ export class TweetComponent implements OnInit, OnDestroy {
       this.tweetId = params['id'] as string;
     });
 
-    this.tweet$ = this.store.select(selectTweet);
-    this.replies$ = this.store.select(selectTweetReplies);
+    this.tweet$ = this.store.select(selectTweetSingle);
+
+    this.tweetSub = this.tweet$.subscribe((tweet) => {
+      if (tweet) {
+        this.tweet = tweet.tweet;
+        this.replies = tweet.replies;
+      }
+    });
   }
 
   replyText: string = '';
@@ -74,5 +80,6 @@ export class TweetComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub.unsubscribe();
+    this.tweetSub.unsubscribe();
   }
 }
