@@ -13,6 +13,8 @@ export interface Reply {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  isLiked: boolean;
+  isRetweeted: boolean;
 }
 
 export interface ReplyHierarchy {
