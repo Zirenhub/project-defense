@@ -84,13 +84,27 @@ export const get = async (req: Request, res: Response) => {
     };
 
     const commentHierarchy = await fetchCommentHierarchy(reply);
+    const childrenReplies = await CommentModel.find({ parent: reply._id })
+      .populate('profile')
+      .sort({ createdAt: 1 });
 
     const modifiedTweet = await getExtraTweetInfo([tweet], userId);
     const modifedReplies = await getExtraTweetInfo(commentHierarchy, userId);
+    const modifiedChildrenReplies = await getExtraTweetInfo(
+      childrenReplies,
+      userId
+    );
+
+    const requestedReply = modifedReplies.pop();
 
     return res.status(200).json({
       status: 'success',
-      data: { tweet: modifiedTweet[0], replies: modifedReplies },
+      data: {
+        tweet: modifiedTweet[0],
+        parents: modifedReplies,
+        reply: requestedReply,
+        children: modifiedChildrenReplies,
+      },
       message: null,
     });
   } catch (err) {
