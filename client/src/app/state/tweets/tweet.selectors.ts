@@ -19,7 +19,17 @@ export const selectTweet = createSelector(
   (state: TweetState) => state.tweets[0]
 );
 
-export const selectReplies = createSelector(
+export const selectTweetReplies = createSelector(
   selectTweets,
   (state: TweetState) => state.replies
+);
+
+export const selectTweetError = createSelector(
+  selectTweets,
+  (state: TweetState) => state.error
+);
+
+export const selectTweetValidationErrors = createSelector(
+  selectTweets,
+  (state: TweetState) => state.validationErrors
 );

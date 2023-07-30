@@ -1,6 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { TimelineRes, GetTweetRes } from 'src/app/types/Api';
+import {
+  TimelineRes,
+  GetTweetRes,
+  LikeRes,
+  PostReplyRes,
+} from 'src/app/types/Api';
 
 @Injectable()
 export class TweetService {
@@ -12,5 +17,17 @@ export class TweetService {
 
   getTweet(id: string) {
     return this.http.get<GetTweetRes>(`/api/tweet/${id}`);
+  }
+
+  postReply(id: string, content: string) {
+    return this.http.post<PostReplyRes>(`/api/tweet/${id}`, { content });
+  }
+
+  likeTweet(id: string) {
+    return this.http.post<LikeRes>(`/api/tweet/${id}/like`, {});
+  }
+
+  likeReply(id: string) {
+    return this.http.post<LikeRes>(`/api/comment/${id}/like`, {});
   }
 }
