@@ -5,6 +5,7 @@ import { UserSidebarComponent } from './user-sidebar/user-sidebar.component';
 import { LayoutComponent } from './layout/layout.component';
 import { CoreRoutingModule } from './core-routing.module';
 import { SharedModule } from '../shared/shared.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -12,6 +13,6 @@ import { SharedModule } from '../shared/shared.module';
     UserSidebarComponent,
     LayoutComponent,
   ],
-  imports: [CommonModule, CoreRoutingModule, SharedModule],
+  imports: [CommonModule, CoreRoutingModule, SharedModule, FormsModule],
 })
 export class CoreModule {}
