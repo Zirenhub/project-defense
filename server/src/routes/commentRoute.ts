@@ -7,7 +7,7 @@ const router = express.Router();
 
 // router.get('/') get all replies ?
 
-router.get('/:id', getReply, get);
+router.get('/:id', jwtAuth, getReply, get);
 router.post('/:id', jwtAuth, reply);
 router.post('/:id/like', jwtAuth, like);
 
