@@ -7,7 +7,6 @@ import { PageComponent } from './page/page.component';
 const routes: Routes = [
   {
     path: '',
-    // canActivate: [AuthActivate],
     component: PageComponent,
   },
 ];

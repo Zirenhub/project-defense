@@ -1,5 +1,4 @@
 import { Response, NextFunction, Request } from 'express';
-import TweetModel from '../models/tweet';
 import { fillTweet } from './fillTweet';
 
 const getTweet = async (req: Request, res: Response, next: NextFunction) => {
