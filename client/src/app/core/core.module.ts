@@ -4,6 +4,7 @@ import { TrendingSidebarComponent } from './trending-sidebar/trending-sidebar.co
 import { UserSidebarComponent } from './user-sidebar/user-sidebar.component';
 import { LayoutComponent } from './layout/layout.component';
 import { CoreRoutingModule } from './core-routing.module';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -11,6 +12,6 @@ import { CoreRoutingModule } from './core-routing.module';
     UserSidebarComponent,
     LayoutComponent,
   ],
-  imports: [CommonModule, CoreRoutingModule],
+  imports: [CommonModule, CoreRoutingModule, SharedModule],
 })
 export class CoreModule {}
