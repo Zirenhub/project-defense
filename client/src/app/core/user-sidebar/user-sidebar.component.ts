@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { AppState } from 'src/app/state/app.state';
@@ -11,21 +12,21 @@ import { User } from 'src/app/types/User';
 })
 export class UserSidebarComponent {
   buttons = [
-    'Home',
-    'Explore',
-    'Notifications',
-    'Messages',
-    'Lists',
-    'Bookmarks',
-    'Communities',
-    'Verified',
-    'Profile',
-    'More',
+    { name: 'Home', onClick: () => this.router.navigateByUrl('/home') },
+    { name: 'Explore', onClick: null },
+    { name: 'Notifications', onClick: null },
+    { name: 'Messages', onClick: null },
+    { name: 'Lists', onClick: null },
+    { name: 'Bookmarks', onClick: null },
+    { name: 'Communities', onClick: null },
+    { name: 'Verified', onClick: null },
+    { name: 'Profile', onClick: null },
+    { name: 'More', onClick: null },
   ];
 
   user$: Observable<User | null>;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private router: Router) {
     this.user$ = this.store.select(selectAuthUser);
   }
 }

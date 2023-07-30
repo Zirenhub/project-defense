@@ -9,9 +9,10 @@
       <div class="flex flex-col gap-2 items-start pr-[60px] my-3">
         <button
           *ngFor="let button of buttons"
+          (click)="button.onClick ? button.onClick() : null"
           class="text-xl hover:bg-gray-200 px-2 py-2 rounded-md transition-all"
         >
-          {{ button }}
+          {{ button.name }}
         </button>
       </div>
 
