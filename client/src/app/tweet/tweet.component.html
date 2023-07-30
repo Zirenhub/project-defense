@@ -1,6 +1,9 @@
 <div *ngIf="tweet$ | async as tweet; else loading" class="flex flex-col p-3">
   <div class="flex items-center gap-5">
-    <button class="border-2 rounded-md px-3 py-1 hover:bg-gray-300">
+    <button
+      (click)="back()"
+      class="border-2 rounded-md px-3 py-1 hover:bg-gray-300"
+    >
       Back
     </button>
     <p class="font-bold text-xl">Tweet</p>
@@ -30,15 +33,15 @@
     </p>
   </div>
   <div class="flex gap-[60px] items-center border-t border-b py-3">
-    <app-svg-reply fillColor="gray" class="h-[20px] w-[20px]" />
-    <app-svg-retweet
-      [fillColor]="tweet.isRetweeted ? 'green' : 'gray'"
-      class="h-[16px] w-[20px]"
-    />
-    <app-svg-like
-      [fillColor]="tweet.isLiked ? 'red' : 'gray'"
-      class="h-[17px] w-[17px]"
-    />
+    <button class="h-[20px] w-[20px]">
+      <app-svg-reply fillColor="gray" />
+    </button>
+    <button class="h-[16px] w-[20px]">
+      <app-svg-retweet [fillColor]="tweet.isRetweeted ? 'green' : 'gray'" />
+    </button>
+    <button class="h-[17px] w-[17px]" (click)="like(tweet._id, 'tweet')">
+      <app-svg-like [fillColor]="tweet.isLiked ? 'red' : 'gray'" />
+    </button>
   </div>
   <div class="flex items-end gap-2 py-3 w-full">
     <img src="../../assets/default-pfp.svg" class="h-[50x] w-[50px]" />
@@ -67,7 +70,7 @@
   <!-- Display replies if available -->
   <div *ngIf="replies$ | async as replies" class="flex flex-col">
     <ng-container *ngFor="let reply of replies">
-      <app-tweet [tweet]="reply" />
+      <app-tweet [tweet]="reply" (like)="like($event, 'reply')" />
     </ng-container>
   </div>
 </div>
