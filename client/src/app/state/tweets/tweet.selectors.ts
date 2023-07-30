@@ -13,3 +13,13 @@ export const selectTweetsStatus = createSelector(
   selectTweets,
   (state: TweetState) => state.status
 );
+
+export const selectTweet = createSelector(
+  selectTweets,
+  (state: TweetState) => state.tweets[0]
+);
+
+export const selectReplies = createSelector(
+  selectTweets,
+  (state: TweetState) => state.replies
+);

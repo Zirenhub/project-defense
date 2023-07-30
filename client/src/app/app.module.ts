@@ -13,6 +13,11 @@ import { AuthEffects } from './state/auth/auth.effects';
 import { SharedModule } from './shared/shared.module';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { AuthGuard } from './shared/guards/auth.guard';
+import { tweetReducer } from './state/tweets/tweet.reducer';
+import { TweetService } from './state/tweets/tweet.service';
+import { TweetEffects } from './state/tweets/tweet.effects';
+import { HomeModule } from './home/home.module';
+import { TweetModule } from './tweet/tweet.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -21,11 +26,13 @@ import { AuthGuard } from './shared/guards/auth.guard';
     AppRoutingModule,
     HttpClientModule,
     SharedModule,
-    StoreModule.forRoot({ auth: authReducer }),
-    EffectsModule.forRoot([AuthEffects]),
+    HomeModule,
+    TweetModule,
+    StoreModule.forRoot({ auth: authReducer, tweets: tweetReducer }),
+    EffectsModule.forRoot([AuthEffects, TweetEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
   ],
-  providers: [AuthService, appInterceptorProvider, AuthGuard],
+  providers: [AuthService, TweetService, appInterceptorProvider, AuthGuard],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
