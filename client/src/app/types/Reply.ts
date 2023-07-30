@@ -5,6 +5,7 @@ export interface Reply {
   profile: User;
   tweet: Tweet;
   content: string;
+  image: string | null;
   parent: string | null;
   repliesCount: number;
   retweetsCount: number;

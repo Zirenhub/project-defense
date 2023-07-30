@@ -1,5 +1,5 @@
 import { JWTUser } from './Auth';
-import { ReplyHierarchy } from './Reply';
+import { Reply, ReplyHierarchy } from './Reply';
 import { Tweet } from './Tweet';
 import { User } from './User';
 
@@ -26,4 +26,12 @@ export interface TimelineRes extends Api {
 
 export interface GetTweetRes extends Api {
   data: ReplyHierarchy;
+}
+
+export interface LikeRes extends Api {
+  data: { _id: string; likeOrDislike: 'like' | 'dislike' };
+}
+
+export interface PostReplyRes extends Api {
+  data: Reply;
 }
