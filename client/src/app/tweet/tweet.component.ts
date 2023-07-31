@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Location } from '@angular/common';
 import { Observable, Subscription } from 'rxjs';
 import { AppState } from '../state/app.state';
 import {
   getTweet,
   likeReply,
   likeTweet,
+  openReplyModal,
   postReply,
 } from '../state/tweets/tweet.actions';
 import { selectTweetSingle } from '../state/tweets/tweet.selectors';
@@ -20,7 +20,6 @@ import { Tweet } from '../types/Tweet';
   templateUrl: './tweet.component.html',
 })
 export class TweetComponent implements OnInit, OnDestroy {
-  // sub to error and show error pop up
   private routeSub: Subscription;
   tweetId?: string;
 
@@ -32,8 +31,8 @@ export class TweetComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private store: Store<AppState>,
-    private location: Location
+    private router: Router,
+    private store: Store<AppState>
   ) {
     this.routeSub = this.route.params.subscribe((params) => {
       this.tweetId = params['id'] as string;
@@ -49,15 +48,18 @@ export class TweetComponent implements OnInit, OnDestroy {
     });
   }
 
-  replyText: string = '';
+  navigateToReply(id: string) {
+    this.router.navigateByUrl(`/reply/${id}`);
+  }
 
-  reply() {
-    if (this.replyText && this.tweetId) {
-      this.store.dispatch(
-        postReply({ id: this.tweetId, content: this.replyText })
-      );
-      this.replyText = '';
+  reply(reply: string) {
+    if (reply && this.tweetId) {
+      this.store.dispatch(postReply({ id: this.tweetId, content: reply }));
     }
+  }
+
+  commentReply(id: string) {
+    this.store.dispatch(openReplyModal({ id, context: 'reply' }));
   }
 
   like(id: string, type: 'tweet' | 'reply') {
@@ -66,10 +68,6 @@ export class TweetComponent implements OnInit, OnDestroy {
     } else {
       this.store.dispatch(likeReply({ id }));
     }
-  }
-
-  back() {
-    this.location.back();
   }
 
   ngOnInit(): void {
