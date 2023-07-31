@@ -19,6 +19,10 @@ import { TweetEffects } from './state/tweets/tweet.effects';
 import { HomeModule } from './home/home.module';
 import { TweetModule } from './tweet/tweet.module';
 import { ReplyModule } from './reply/reply.module';
+import { profileReducer } from './state/profile/profile.reducer';
+import { ProfileEffects } from './state/profile/profile.effects';
+import { ProfileService } from './state/profile/profile.service';
+import { ProfileModule } from './profile/profile.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -30,11 +34,22 @@ import { ReplyModule } from './reply/reply.module';
     HomeModule,
     TweetModule,
     ReplyModule,
-    StoreModule.forRoot({ auth: authReducer, tweets: tweetReducer }),
-    EffectsModule.forRoot([AuthEffects, TweetEffects]),
+    ProfileModule,
+    StoreModule.forRoot({
+      auth: authReducer,
+      tweets: tweetReducer,
+      profile: profileReducer,
+    }),
+    EffectsModule.forRoot([AuthEffects, TweetEffects, ProfileEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
   ],
-  providers: [AuthService, TweetService, appInterceptorProvider, AuthGuard],
+  providers: [
+    AuthService,
+    TweetService,
+    ProfileService,
+    appInterceptorProvider,
+    AuthGuard,
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

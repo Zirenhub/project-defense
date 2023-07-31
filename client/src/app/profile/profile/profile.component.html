@@ -1,0 +1,67 @@
+<ng-container *ngIf="profile$ | async as profile" class="relative">
+  <div class="flex p-3 sticky top-0 z-10 bg-white">
+    <div class="flex items-center gap-3">
+      <button
+        class="hover:bg-gray-300 border rounded-md px-3 py-1"
+        (click)="navigateBack()"
+      >
+        Back
+      </button>
+      <p>{{ profile.firstName }} {{ profile.lastName }}</p>
+    </div>
+  </div>
+  <div class="flex flex-col">
+    <div class="relative">
+      <div class="w-full bg-gray-400 h-[200px]"></div>
+      <img
+        src="../../../assets/default-pfp.svg"
+        class="h-[130px] w-[130px] absolute bottom-[20px] bg-white border-2 border-white rounded-full left-[20px] translate-y-2/4"
+      />
+    </div>
+    <div class="flex flex-col mt-[50px] px-3">
+      <p class="font-bold text-2xl">
+        {{ profile.firstName }} {{ profile.lastName }}
+      </p>
+      <p class="text-gray-400">@{{ profile.at }}</p>
+      <p>{{ profile.bio }}</p>
+      <p class="text-gray-400">{{ profile.createdAt }}</p>
+      <p class="font-bold">
+        {{ profile.following.length
+        }}<span class="text-gray-400 font-normal pl-1">Following</span>
+        {{ profile.followers.length
+        }}<span class="text-gray-400 font-normal pl-1">Followers</span>
+      </p>
+    </div>
+    <div class="flex">
+      <button
+        *ngFor="let button of buttons"
+        [ngClass]="
+          activePage === button.name
+            ? 'font-bold border-b-4 border-blue-400 grow hover:bg-gray-300 transition-all py-3'
+            : 'font-bold text-gray-500 grow hover:bg-gray-300 transition-all py-3'
+        "
+        (click)="switch(button.name)"
+      >
+        {{ button.name }}
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="activePage === 'Tweets' && (tweets$ | async) as tweets">
+    <p *ngIf="tweets.length === 0" class="text-center text-gray-400">
+      There is nothing here yet!
+    </p>
+    <app-tweet-feed [tweets]="tweets" />
+  </ng-container>
+
+  <ng-container *ngIf="activePage === 'Likes' && (likes$ | async) as likes">
+    <app-reply-container
+      *ngFor="let like of likes"
+      [comment]="like"
+      (click)="navigateToLike(like)"
+      (like)="handleLike(like)"
+      (reply)="handleReply(like)"
+      (retweet)="handleRetweet(like)"
+    />
+  </ng-container>
+</ng-container>

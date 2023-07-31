@@ -4,6 +4,7 @@ import { LayoutComponent } from './layout/layout.component';
 import { FeedComponent } from '../home/feed/feed.component';
 import { TweetComponent } from '../tweet/tweet.component';
 import { ReplyComponent } from '../reply/reply/reply.component';
+import { ProfileComponent } from '../profile/profile/profile.component';
 
 const routes: Routes = [
   {
@@ -13,6 +14,7 @@ const routes: Routes = [
       { path: 'home', component: FeedComponent },
       { path: 'tweet/:id', component: TweetComponent },
       { path: 'reply/:id', component: ReplyComponent },
+      { path: 'profile/:id', component: ProfileComponent },
     ],
   },
 ];

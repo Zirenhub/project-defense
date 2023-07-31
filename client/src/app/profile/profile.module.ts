@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FeedComponent } from './feed/feed.component';
+import { ProfileComponent } from './profile/profile.component';
 import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
-  declarations: [FeedComponent],
+  declarations: [ProfileComponent],
   imports: [CommonModule, SharedModule],
-  exports: [FeedComponent],
 })
-export class HomeModule {}
+export class ProfileModule {}
