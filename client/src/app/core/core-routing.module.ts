@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { FeedComponent } from '../home/feed/feed.component';
 import { TweetComponent } from '../tweet/tweet.component';
+import { ReplyComponent } from '../reply/reply/reply.component';
 
 const routes: Routes = [
   {
@@ -11,6 +12,7 @@ const routes: Routes = [
     children: [
       { path: 'home', component: FeedComponent },
       { path: 'tweet/:id', component: TweetComponent },
+      { path: 'reply/:id', component: ReplyComponent },
     ],
   },
 ];
