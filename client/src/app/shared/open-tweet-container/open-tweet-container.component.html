@@ -1,0 +1,60 @@
+<div *ngIf="content" class="flex flex-col p-3 border-b">
+  <div class="flex mt-5 gap-3 items-center">
+    <img src="../../assets/default-pfp.svg" class="h-[50px] w-[50px]" />
+    <div class="flex flex-col">
+      <p class="font-bold">
+        {{ content.profile.firstName }} {{ content.profile.lastName }}
+      </p>
+      <p class="text-gray-500">@{{ content.profile.at }}</p>
+    </div>
+  </div>
+  <p class="py-3">{{ content.content }}</p>
+  <div class="flex gap-8 items-center border-t border-b py-2">
+    <p>
+      <span class="font-bold mr-1">{{ content.retweetsCount }}</span>
+      <span class="text-gray-500">Retweets</span>
+    </p>
+    <p>
+      <span class="font-bold mr-1">{{ content.likesCount }}</span>
+      <span class="text-gray-500">Likes</span>
+    </p>
+    <p>
+      <span class="font-bold mr-1">{{ content.repliesCount }}</span>
+      <span class="text-gray-500">Replies</span>
+    </p>
+  </div>
+  <div class="flex gap-[60px] items-center border-t border-b py-3">
+    <button class="h-[20px] w-[20px]">
+      <app-svg-reply fillColor="gray" />
+    </button>
+    <button class="h-[16px] w-[20px]">
+      <app-svg-retweet [fillColor]="content.isRetweeted ? 'green' : 'gray'" />
+    </button>
+    <button class="h-[17px] w-[17px]" (click)="handleLike()">
+      <app-svg-like [fillColor]="content.isLiked ? 'red' : 'gray'" />
+    </button>
+  </div>
+  <div class="flex items-end gap-2 py-3 w-full">
+    <img src="../../assets/default-pfp.svg" class="h-[50x] w-[50px]" />
+    <div class="flex flex-col grow">
+      <p class="text-sm text-gray-400">
+        replying to
+        <span class="font-bold text-sm text-blue-400"
+          >@{{ content.profile.at }}</span
+        >
+      </p>
+      <input
+        type="text"
+        placeholder="Tweet your reply!"
+        class="p-3 rounded-lg shadow-sm"
+        [(ngModel)]="replyText"
+      />
+    </div>
+    <button
+      (click)="handleReply()"
+      class="bg-blue-500 py-1 px-2 rounded-lg hover:bg-blue-400 transition-all text-white font-bold"
+    >
+      Reply
+    </button>
+  </div>
+</div>
