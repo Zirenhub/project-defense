@@ -1,76 +1,17 @@
-<div *ngIf="tweet; else loading" class="flex flex-col p-3 border-b">
-  <div class="flex items-center gap-5">
-    <button
-      (click)="back()"
-      class="border-2 rounded-md px-3 py-1 hover:bg-gray-300"
-    >
-      Back
-    </button>
-    <p class="font-bold text-xl">Tweet</p>
-  </div>
-  <div class="flex mt-5 gap-3 items-center">
-    <img src="../../assets/default-pfp.svg" class="h-[50px] w-[50px]" />
-    <div class="flex flex-col">
-      <p class="font-bold">
-        {{ tweet.profile.firstName }} {{ tweet.profile.lastName }}
-      </p>
-      <p class="text-gray-500">@{{ tweet.profile.at }}</p>
-    </div>
-  </div>
-  <p class="py-3">{{ tweet.content }}</p>
-  <div class="flex gap-8 items-center border-t border-b py-2">
-    <p>
-      <span class="font-bold mr-1">{{ tweet.retweetsCount }}</span>
-      <span class="text-gray-500">Retweets</span>
-    </p>
-    <p>
-      <span class="font-bold mr-1">{{ tweet.likesCount }}</span>
-      <span class="text-gray-500">Likes</span>
-    </p>
-    <p>
-      <span class="font-bold mr-1">{{ tweet.repliesCount }}</span>
-      <span class="text-gray-500">Replies</span>
-    </p>
-  </div>
-  <div class="flex gap-[60px] items-center border-t border-b py-3">
-    <button class="h-[20px] w-[20px]">
-      <app-svg-reply fillColor="gray" />
-    </button>
-    <button class="h-[16px] w-[20px]">
-      <app-svg-retweet [fillColor]="tweet.isRetweeted ? 'green' : 'gray'" />
-    </button>
-    <button class="h-[17px] w-[17px]" (click)="like(tweet._id, 'tweet')">
-      <app-svg-like [fillColor]="tweet.isLiked ? 'red' : 'gray'" />
-    </button>
-  </div>
-  <div class="flex items-end gap-2 py-3 w-full">
-    <img src="../../assets/default-pfp.svg" class="h-[50x] w-[50px]" />
-    <div class="flex flex-col grow">
-      <p class="text-sm text-gray-400">
-        replying to
-        <span class="font-bold text-sm text-blue-400"
-          >@{{ tweet.profile.at }}</span
-        >
-      </p>
-      <input
-        type="text"
-        placeholder="Tweet your reply!"
-        class="p-3 rounded-lg shadow-sm"
-        [(ngModel)]="replyText"
-      />
-    </div>
-    <button
-      (click)="reply()"
-      class="bg-blue-500 py-1 px-2 rounded-lg hover:bg-blue-400 transition-all text-white font-bold"
-    >
-      Reply
-    </button>
-  </div>
-</div>
+<app-open-tweet-container
+  [content]="tweet"
+  (like)="like($event, 'tweet')"
+  (reply)="reply($event)"
+/>
 <!-- Display replies if available -->
 <div *ngIf="replies" class="flex flex-col">
   <ng-container *ngFor="let reply of replies">
-    <app-reply-container [comment]="reply" (like)="like($event, 'reply')" />
+    <app-reply-container
+      [comment]="reply"
+      (like)="like($event, 'reply')"
+      (reply)="commentReply($event)"
+      (click)="navigateToReply(reply._id)"
+    />
   </ng-container>
 </div>
 
