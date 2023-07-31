@@ -1,0 +1,19 @@
+<div
+  (click)="navigate()"
+  class="flex gap-3 text-sm border rounded-md mb-2 border-gray-300 hover:bg-gray-200 transition-all p-3 cursor-pointer"
+>
+  <img
+    src="../../../assets/default-pfp.svg"
+    class="w-[25px] h-[25px] rounded-full"
+  />
+  <div class="flex flex-col w-full">
+    <div class="flex flex-col">
+      <p>
+        <span class="font-bold"
+          >{{ tweet?.profile?.firstName }} {{ tweet?.profile?.lastName }}</span
+        ><span class="text-gray-400 pl-2">@{{ tweet?.profile?.at }}</span>
+      </p>
+    </div>
+    <p class="pb-1">{{ tweet?.content || tweet?.image }}</p>
+  </div>
+</div>

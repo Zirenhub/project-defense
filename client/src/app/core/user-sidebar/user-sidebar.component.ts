@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { AppState } from 'src/app/state/app.state';
 import { selectAuthUser } from 'src/app/state/auth/auth.selectors';
+import { openTweetModal } from 'src/app/state/tweets/tweet.actions';
 import { User } from 'src/app/types/User';
 
 @Component({
@@ -28,5 +29,9 @@ export class UserSidebarComponent {
 
   constructor(private store: Store<AppState>, private router: Router) {
     this.user$ = this.store.select(selectAuthUser);
+  }
+
+  handleOpenTweetModal() {
+    this.store.dispatch(openTweetModal());
   }
 }

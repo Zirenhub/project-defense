@@ -69,3 +69,13 @@ export const selectReplyingTo = createSelector(
   selectTweets,
   (state: TweetState) => state.replyingTo
 );
+
+export const selectTweetModal = createSelector(
+  selectTweets,
+  (state: TweetState) => state.postModal
+);
+
+export const selectRetweetTo = createSelector(
+  selectTweets,
+  (state: TweetState) => state.retweetTo
+);

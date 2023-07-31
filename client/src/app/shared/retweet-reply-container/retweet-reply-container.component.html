@@ -1,0 +1,20 @@
+<div
+  class="flex gap-3 hover:bg-gray-200 border border-gray-300 text-sm rounded-md transition-all py-3 px-3 border-b cursor-pointer"
+>
+  <img
+    src="../../../assets/default-pfp.svg"
+    class="w-[25px] h-[25px] rounded-full"
+  />
+  <div class="flex flex-col w-full">
+    <div class="flex flex-col">
+      <p>
+        <span class="font-bold"
+          >{{ comment?.profile?.firstName }}
+          {{ comment?.profile?.lastName }}</span
+        ><span class="text-gray-400 pl-2">@{{ comment?.profile?.at }}</span>
+      </p>
+    </div>
+    <p class="pb-1">{{ comment?.content || comment?.image }}</p>
+    <p class="text-gray-300">replying to (to be added)</p>
+  </div>
+</div>

@@ -2,12 +2,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
+import { Location } from '@angular/common';
 import { AppState } from 'src/app/state/app.state';
 import {
   getReply,
   likeReply,
   likeTweet,
   openReplyModal,
+  openRetweetModal,
+  postReplyToReply,
 } from 'src/app/state/tweets/tweet.actions';
 import { IReply } from 'src/app/state/tweets/tweet.reducer';
 import { selectTweetReply } from 'src/app/state/tweets/tweet.selectors';
@@ -33,7 +36,8 @@ export class ReplyComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private location: Location
   ) {
     this.fullReply$ = this.store.select(selectTweetReply);
 
@@ -51,14 +55,24 @@ export class ReplyComponent implements OnInit, OnDestroy {
     this.router.navigate([`/${type}/` + id]);
   }
 
-  // handleReply(reply: string) {
-  //   if (reply && this.replyId) {
-  //     this.store.dispatch(postReply({ id: this.tweetId, content: reply }));
-  //   }
-  // }
+  back() {
+    this.location.back();
+  }
 
-  commentReply(id: string) {
-    this.store.dispatch(openReplyModal({ id, context: 'tweet' }));
+  handleReply(reply: string) {
+    if (reply && this.replyId) {
+      this.store.dispatch(
+        postReplyToReply({ id: this.replyId, content: reply })
+      );
+    }
+  }
+
+  handleRetweet(id: string, context: 'tweet' | 'reply') {
+    this.store.dispatch(openRetweetModal({ id, context }));
+  }
+
+  commentReply(id: string, context: 'tweet' | 'reply') {
+    this.store.dispatch(openReplyModal({ id, context }));
   }
 
   like(id: string, type: 'tweet' | 'reply') {

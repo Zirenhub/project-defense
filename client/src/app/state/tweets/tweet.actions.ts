@@ -1,11 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { ValidationErrors } from 'src/app/types/Api';
-import {
-  FullReply,
-  Reply,
-  ReplyHierarchy,
-  ReplyWithParent,
-} from 'src/app/types/Reply';
+import { FullReply, Reply, ReplyHierarchy } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 
 // create action suplied with a name and some data to send along with it (optionally)
@@ -17,6 +12,41 @@ export const postTweet = createAction(
 export const postTweetSuccess = createAction(
   '[Tweet] Post Tweet Success',
   props<{ tweet: Tweet }>()
+);
+
+export const postTweetFailure = createAction(
+  '[Tweet] Post Tweet Failure',
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
+);
+
+export const retweetTweet = createAction(
+  '[Tweet] Retweet Tweet',
+  props<{ id: string; content: string }>()
+);
+
+export const retweetTweetSuccess = createAction(
+  '[Tweet] Retweet Tweet Success',
+  props<{ tweet: Tweet }>()
+);
+
+export const retweetTweetFailure = createAction(
+  '[Tweet] Retweet Tweet Failure',
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
+);
+
+export const retweetReply = createAction(
+  '[Tweet] Retweet Reply',
+  props<{ id: string; content: string }>()
+);
+
+export const retweetReplySuccess = createAction(
+  '[Tweet] Retweet Reply Success',
+  props<{ tweet: Tweet }>()
+);
+
+export const retweetReplyFailure = createAction(
+  '[Tweet] Retweet Reply Failure',
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
 );
 
 export const postReply = createAction(
@@ -41,7 +71,7 @@ export const postReplyToReply = createAction(
 
 export const postReplyToReplySuccess = createAction(
   '[Tweet] Post Reply to Reply Success',
-  props<{ reply: ReplyWithParent }>()
+  props<{ reply: Reply }>()
 );
 
 export const postReplyToReplyFailure = createAction(
@@ -121,11 +151,22 @@ export const likeReplyFailure = createAction(
   props<{ error: string }>()
 );
 
+export const openTweetModal = createAction('[Tweet] Open Tweet Modal');
+
+export const closeTweetModal = createAction('[Tweet] Close Tweet Modal');
+
 export const openReplyModal = createAction(
   '[Tweet] Open Reply Modal',
   props<{ id: string; context: 'tweet' | 'reply' }>()
 );
 
 export const closeReplyingToModal = createAction('[Tweet] Close Reply Modal');
+
+export const openRetweetModal = createAction(
+  '[Tweet] Open Retweet Modal',
+  props<{ id: string; context: 'tweet' | 'reply' }>()
+);
+
+export const closeRetweetModal = createAction('[Tweet] Close Retweet Modal');
 
 export const clearTweetError = createAction('[Tweet] Clear Tweet Error');

@@ -1,9 +1,20 @@
+<div class="flex items-center gap-5 pt-3 px-3">
+  <button
+    (click)="back()"
+    class="border-2 rounded-md px-3 py-1 hover:bg-gray-300"
+  >
+    Back
+  </button>
+  <p class="font-bold text-xl">Tweet</p>
+</div>
+
 <ng-container *ngIf="tweet">
   <app-tweet-container
     [tweet]="tweet"
     (like)="like($event, 'tweet')"
-    (reply)="commentReply($event)"
+    (reply)="commentReply($event, 'tweet')"
     (click)="navigate(tweet._id, 'tweet')"
+    (retweet)="handleRetweet($event, 'tweet')"
   />
 </ng-container>
 
@@ -12,31 +23,28 @@
     <app-reply-container
       [comment]="reply"
       (like)="like($event, 'reply')"
-      (reply)="commentReply($event)"
+      (reply)="commentReply($event, 'reply')"
       (click)="navigate(reply._id, 'reply')"
+      (retweet)="handleRetweet($event, 'reply')"
     />
   </ng-container>
 </div>
 
-<app-open-tweet-container [content]="reply" (like)="like($event, 'reply')" />
-
-<!-- <div class="flex items-center gap-5">
-  <button
-    (click)="back()"
-    class="border-2 rounded-md px-3 py-1 hover:bg-gray-300"
-  >
-    Back
-  </button>
-  <p class="font-bold text-xl">Tweet</p>
-</div> -->
+<app-open-tweet-container
+  [content]="reply"
+  (like)="like($event, 'reply')"
+  (reply)="handleReply($event)"
+  (retweet)="handleRetweet($event, 'reply')"
+/>
 
 <div *ngIf="children" class="flex flex-col">
   <ng-container *ngFor="let reply of children">
     <app-reply-container
       [comment]="reply"
       (like)="like($event, 'reply')"
-      (reply)="commentReply($event)"
+      (reply)="commentReply($event, 'reply')"
       (click)="navigate(reply._id, 'reply')"
+      (retweet)="handleRetweet($event, 'reply')"
     />
   </ng-container>
 </div>

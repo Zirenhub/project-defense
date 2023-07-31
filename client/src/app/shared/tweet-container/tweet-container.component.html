@@ -12,8 +12,12 @@
       </p>
     </div>
     <p class="pb-1">{{ tweet?.content || tweet?.image }}</p>
-    <!-- ADD CONTENT HERE -->
-
+    <ng-container *ngIf="retweetReply">
+      <app-retweet-reply-container [comment]="retweetReply" />
+    </ng-container>
+    <ng-container *ngIf="retweetTweet">
+      <app-retweet-tweet-container [tweet]="retweetTweet" />
+    </ng-container>
     <div class="flex justify-between items-center pr-[300px] text-gray-500">
       <button
         class="flex gap-2 hover:text-blue-400"

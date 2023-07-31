@@ -7,6 +7,8 @@ import {
   PostReplyRes,
   PostReplyToReplyRes,
   GetReplyRes,
+  PostTweetRes,
+  ReplyRetweetRes,
 } from 'src/app/types/Api';
 
 @Injectable()
@@ -15,6 +17,22 @@ export class TweetService {
 
   getTimeline() {
     return this.http.get<TimelineRes>('/api/tweet/timeline');
+  }
+
+  postTweet(content: string) {
+    return this.http.post<PostTweetRes>('/api/tweet', { content });
+  }
+
+  retweetTweet(id: string, content: string) {
+    return this.http.post<PostTweetRes>(`/api/tweet/${id}/retweet`, {
+      content,
+    });
+  }
+
+  retweetReply(id: string, content: string) {
+    return this.http.post<ReplyRetweetRes>(`/api/comment/${id}/retweet`, {
+      content,
+    });
   }
 
   getTweet(id: string) {

@@ -2,12 +2,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
+import { Location } from '@angular/common';
 import { AppState } from '../state/app.state';
 import {
   getTweet,
   likeReply,
   likeTweet,
   openReplyModal,
+  openRetweetModal,
   postReply,
 } from '../state/tweets/tweet.actions';
 import { selectTweetSingle } from '../state/tweets/tweet.selectors';
@@ -32,7 +34,8 @@ export class TweetComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private location: Location
   ) {
     this.routeSub = this.route.params.subscribe((params) => {
       this.tweetId = params['id'] as string;
@@ -48,6 +51,10 @@ export class TweetComponent implements OnInit, OnDestroy {
     });
   }
 
+  back() {
+    this.location.back();
+  }
+
   navigateToReply(id: string) {
     this.router.navigateByUrl(`/reply/${id}`);
   }
@@ -56,6 +63,10 @@ export class TweetComponent implements OnInit, OnDestroy {
     if (reply && this.tweetId) {
       this.store.dispatch(postReply({ id: this.tweetId, content: reply }));
     }
+  }
+
+  retweet(id: string, context: 'tweet' | 'reply') {
+    this.store.dispatch(openRetweetModal({ id, context }));
   }
 
   commentReply(id: string) {

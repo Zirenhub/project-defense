@@ -1,23 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import {
-  clearTweetError,
-  closeReplyingToModal,
-  getReplySuccess,
-  getTimeline,
-  getTimelineFailure,
-  getTimelineSuccess,
-  getTweet,
-  getTweetSuccess,
-  likeReplyFailure,
-  likeReplySuccess,
-  likeTweetFailure,
-  likeTweetSuccess,
-  openReplyModal,
-  postReplyFailure,
-  postReplySuccess,
-  postReplyToReplySuccess,
-  postTweetSuccess,
-} from './tweet.actions';
+import * as tweetActions from './tweet.actions';
 import { Tweet } from 'src/app/types/Tweet';
 import { Reply } from 'src/app/types/Reply';
 import { ValidationErrors } from 'src/app/types/Api';
@@ -51,6 +33,8 @@ export interface ReplyingTo {
 export interface TweetState {
   content: Single | Timeline | IReply | null;
   replyingTo: ReplyingTo | null;
+  postModal: boolean;
+  retweetTo: ReplyingTo | null;
   error: string | null;
   validationErrors: ValidationErrors | null;
   status: 'pending' | 'loading' | 'error' | 'success';
@@ -59,7 +43,10 @@ export interface TweetState {
 
 export const initialState: TweetState = {
   content: null,
+  // replyingTo is used for modal only
   replyingTo: null,
+  postModal: false,
+  retweetTo: null,
   error: null,
   validationErrors: null,
   status: 'pending',
@@ -120,6 +107,56 @@ const likeDislike = (
   return newState;
 };
 
+function findTweetOrReplyById(
+  currentState: TweetState,
+  id: string,
+  context: 'tweet' | 'reply'
+): ReplyingTo | null {
+  let content = currentState.content;
+  let tweetOrReply;
+
+  if (context === 'tweet') {
+    if (currentState.tweetType === 'timeline') {
+      content = content as Timeline;
+      tweetOrReply = content.tweets.find((x) => x._id === id);
+    } else {
+      content = content as IReply | Single;
+      tweetOrReply = content.tweet;
+    }
+  } else if (context === 'reply') {
+    if (currentState.tweetType === 'single') {
+      content = content as Single;
+      tweetOrReply = content.replies.find((x) => x._id === id);
+    } else if (currentState.tweetType === 'reply') {
+      content = content as IReply;
+      tweetOrReply = content.parents
+        .concat(content.reply)
+        .concat(content.children)
+        .find((x) => x._id === id);
+    }
+  }
+
+  if (tweetOrReply) {
+    const type = context === 'tweet' ? 'tweet' : 'reply';
+    const affected = [tweetOrReply.profile.at];
+    if ('parent' in tweetOrReply && tweetOrReply.parent) {
+      affected.push('and more');
+    }
+
+    return {
+      _id: tweetOrReply._id,
+      type,
+      content: tweetOrReply.content,
+      at: tweetOrReply.profile.at,
+      firstName: tweetOrReply.profile.firstName,
+      lastName: tweetOrReply.profile.lastName,
+      affected,
+    };
+  }
+
+  return null;
+}
+
 const loadingState = (state: TweetState) => {
   return {
     ...state,
@@ -130,84 +167,83 @@ const loadingState = (state: TweetState) => {
   };
 };
 
+const assignErrors = (
+  state: TweetState,
+  validationErrors: ValidationErrors | undefined,
+  error: string | undefined
+) => {
+  if (validationErrors && validationErrors.length > 0) {
+    return {
+      ...state,
+      errror: null,
+      validationErrors,
+      status: 'error' as const,
+    };
+  } else if (error) {
+    return {
+      ...state,
+      error,
+      validationErrors: null,
+      status: 'error' as const,
+    };
+  }
+  return { ...state };
+};
+
+const pushTweetToTimeline = (tweet: Tweet, state: TweetState) => {
+  const updateTweet = (x: Tweet | Reply): Tweet | Reply => {
+    if (tweet.retweet.original?._id === x._id) {
+      return {
+        ...x,
+        isRetweeted: true,
+        retweetsCount: x.retweetsCount + 1,
+      };
+    }
+    return x;
+  };
+
+  const searchForRetweetParent = (
+    arr: (Tweet | Reply)[]
+  ): (Tweet | Reply)[] => {
+    return arr.map(updateTweet);
+  };
+
+  let content = state.content;
+
+  if (state.tweetType === 'timeline') {
+    content = content as Timeline;
+    content = {
+      ...content,
+      tweets: searchForRetweetParent([tweet, ...content.tweets]) as Tweet[],
+    };
+  } else if (state.tweetType === 'single') {
+    content = content as Single;
+    content = {
+      ...content,
+      tweet: updateTweet(content.tweet) as Tweet,
+      replies: searchForRetweetParent(content.replies) as Reply[],
+    };
+  } else if (state.tweetType === 'reply') {
+    content = content as IReply;
+    content = {
+      ...content,
+      tweet: updateTweet(content.tweet) as Tweet,
+      parents: searchForRetweetParent(content.parents) as Reply[],
+      reply: updateTweet(content.reply) as Reply,
+      children: searchForRetweetParent(content.children) as Reply[],
+    };
+  }
+
+  return { ...state, content };
+};
+
 export const tweetReducer = createReducer(
   initialState,
-  // on(postTweetSuccess, (state, { tweet }) => ({
-  //   ...state,
-  //   tweets: [tweet, ...state.tweets],
-  // })),
-  on(getTimeline, (state) => loadingState(state)),
-  on(getTweet, (state) => loadingState(state)),
-  on(openReplyModal, (state, { id, context }) => {
-    let currentState = state.content;
-    let replyingTo: any; // give type
 
-    if (context === 'tweet') {
-      if (state.tweetType === 'timeline') {
-        currentState = currentState as Timeline;
-        const tweet = currentState.tweets.find((x) => x._id === id);
-        if (tweet) {
-          replyingTo = {
-            content: tweet.content,
-            _id: tweet._id,
-            type: 'tweet' as const,
-            at: tweet.profile.at,
-            firstName: tweet.profile.firstName,
-            lastName: tweet.profile.lastName,
-            affected: [tweet.profile.at],
-          };
-        }
-      } else {
-        currentState = currentState as IReply | Single;
-        const tweet = currentState.tweet;
-        replyingTo = {
-          content: tweet.content,
-          _id: tweet._id,
-          type: 'tweet' as const,
-          at: tweet.profile.at,
-          firstName: tweet.profile.firstName,
-          lastName: tweet.profile.lastName,
-          affected: [tweet.profile.at],
-        };
-      }
-    } else if (context === 'reply') {
-      if (state.tweetType === 'single') {
-        currentState = currentState as Single;
-        const reply = currentState.replies.find((x) => x._id === id);
-        if (reply) {
-          replyingTo = {
-            _id: reply._id,
-            type: 'reply' as const,
-            content: reply.content,
-            at: reply.profile.at,
-            firstName: reply.profile.firstName,
-            lastName: reply.profile.lastName,
-            affected: [currentState.tweet.profile.at, reply.profile.at],
-          };
-        }
-      } else if (state.tweetType === 'reply') {
-        currentState = currentState as IReply;
-        const reply = currentState.parents
-          .concat(currentState.reply)
-          .find((x) => x._id === id);
-        if (reply) {
-          const affected = [currentState.tweet.profile.at, reply.profile.at];
-          if (reply.parent) {
-            affected.push('and more');
-          }
-          replyingTo = {
-            content: reply.content,
-            _id: reply._id,
-            type: 'reply' as const,
-            at: reply.profile.at,
-            firstName: reply.profile.firstName,
-            lastName: reply.profile.lastName,
-            affected,
-          };
-        }
-      }
-    }
-
+  on(tweetActions.getTimeline, (state) => loadingState(state)),
+  on(tweetActions.getTweet, (state) => loadingState(state)),
+  on(tweetActions.openReplyModal, (state, { id, context }) => {
+    let replyingTo = findTweetOrReplyById(state, id, context);
     if (replyingTo) {
       return {
         ...state,
@@ -219,50 +255,76 @@ export const tweetReducer = createReducer(
         ...state,
         status: 'error' as const,
         error:
-          context === 'tweet' ? 'Failed to find tweet' : 'Failed to find reply',
+          context === 'tweet'
+            ? 'Failed to find tweet'
+            : ('Failed to find reply' as const),
       };
     }
   }),
-  on(closeReplyingToModal, (state) => ({
+  on(tweetActions.closeReplyingToModal, (state) => ({
     ...state,
     status: 'success' as const,
     replyingTo: null,
   })),
-  on(getTimelineSuccess, (state, { timeline }) => ({
+  on(tweetActions.openRetweetModal, (state, { id, context }) => {
+    let retweetTo = findTweetOrReplyById(state, id, context);
+    if (retweetTo) {
+      return {
+        ...state,
+        retweetTo,
+        status: 'success' as const,
+      };
+    } else {
+      return {
+        ...state,
+        status: 'error' as const,
+        error:
+          context === 'tweet'
+            ? 'Failed to find tweet'
+            : ('Failed to find reply' as const),
+      };
+    }
+  }),
+  on(tweetActions.closeRetweetModal, (state) => ({
+    ...state,
+    status: 'success' as const,
+    retweetTo: null,
+  })),
+  on(tweetActions.getTimelineSuccess, (state, { timeline }) => ({
     ...state,
     content: { tweets: timeline },
     status: 'success' as const,
     tweetType: 'timeline' as const,
   })),
-  on(getTimelineFailure, (state, { error }) => ({
+  on(tweetActions.getTimelineFailure, (state, { error }) => ({
     ...state,
     content: null,
     errror: error,
     status: 'error' as const,
   })),
-  on(getTweetSuccess, (state, { tweet, replies }) => ({
+  on(tweetActions.getTweetSuccess, (state, { tweet, replies }) => ({
     ...state,
     content: { tweet, replies },
     status: 'success' as const,
     tweetType: 'single' as const,
   })),
-  on(likeTweetSuccess, (state, { _id, likeOrDislike }) => {
+  on(tweetActions.likeTweetSuccess, (state, { _id, likeOrDislike }) => {
     return likeDislike(state, 'tweets', _id, likeOrDislike);
   }),
-  on(likeReplySuccess, (state, { _id, likeOrDislike }) => {
+  on(tweetActions.likeReplySuccess, (state, { _id, likeOrDislike }) => {
     return likeDislike(state, 'replies', _id, likeOrDislike);
   }),
-  on(likeTweetFailure, (state, { error }) => ({
+  on(tweetActions.likeTweetFailure, (state, { error }) => ({
     ...state,
     errror: error,
     status: 'error' as const,
   })),
-  on(likeReplyFailure, (state, { error }) => ({
+  on(tweetActions.likeReplyFailure, (state, { error }) => ({
     ...state,
     errror: error,
     status: 'error' as const,
   })),
-  on(postReplySuccess, (state, { reply }) => {
+  on(tweetActions.postReplySuccess, (state, { reply }) => {
     let content = state.content;
     if (state.tweetType === 'timeline') {
       content = content as Timeline;
@@ -277,7 +339,26 @@ export const tweetReducer = createReducer(
     }
     if (state.tweetType === 'reply') {
       content = content as IReply;
-      content = { ...content, children: [...content.children, reply] };
+      if (reply.parent === content.tweet._id) {
+        content = {
+          ...content,
+          tweet: {
+            ...content.tweet,
+            repliesCount: content.tweet.repliesCount + 1,
+          },
+        };
+      }
+      if (reply.parent === reply._id) {
+        content = { ...content, children: [...content.children, reply] };
+      }
+      content = {
+        ...content,
+        parents: content.parents.map((x) =>
+          x._id === reply.parent
+            ? { ...x, repliesCount: x.repliesCount + 1 }
+            : { ...x }
+        ),
+      };
     }
     if (state.tweetType === 'single') {
       content = content as Single;
@@ -299,33 +380,71 @@ export const tweetReducer = createReducer(
       status: 'success' as const,
     };
   }),
-  on(postReplyFailure, (state, { error, validationErrors }) => {
-    if (validationErrors && validationErrors.length > 0) {
+  on(tweetActions.postReplyFailure, (state, { error, validationErrors }) => {
+    return assignErrors(state, validationErrors, error);
+  }),
+  on(
+    tweetActions.getReplySuccess,
+    (state, { tweet, reply, parents, children }) => {
       return {
         ...state,
-        errror: null,
-        validationErrors,
-        status: 'error' as const,
-      };
-    } else if (error) {
-      return {
-        ...state,
-        error,
-        validationErrors: null,
-        status: 'error' as const,
+        status: 'success' as const,
+        tweetType: 'reply' as const,
+        content: { tweet, reply, parents, children },
       };
     }
-    return { ...state };
+  ),
+  on(tweetActions.postReplyToReplySuccess, (state, { reply }) => {
+    let content = state.content;
+    if (state.tweetType === 'reply') {
+      content = content as IReply;
+      content = {
+        ...content,
+        reply: {
+          ...content.reply,
+          repliesCount: content.reply.repliesCount + 1,
+        },
+        children: [reply, ...content.children],
+      };
+    }
+    if (state.tweetType === 'single') {
+      content = content as Single;
+      content = {
+        ...content,
+        replies: content.replies.map((x) =>
+          x._id === reply.parent
+            ? { ...x, repliesCount: x.repliesCount + 1 }
+            : { ...x }
+        ),
+      };
+    }
+
+    return { ...state, content };
   }),
-  on(getReplySuccess, (state, { tweet, reply, parents, children }) => {
-    return {
-      ...state,
-      status: 'success' as const,
-      tweetType: 'reply' as const,
-      content: { tweet, reply, parents, children },
-    };
+  on(tweetActions.postTweetSuccess, (state, { tweet }) => {
+    return pushTweetToTimeline(tweet, state);
   }),
-  on(clearTweetError, (state) => ({
+  on(tweetActions.postTweetFailure, (state, { error, validationErrors }) => {
+    return assignErrors(state, validationErrors, error);
+  }),
+  on(tweetActions.retweetTweetSuccess, (state, { tweet }) => {
+    return pushTweetToTimeline(tweet, state);
+  }),
+  on(tweetActions.retweetTweetFailure, (state, { error, validationErrors }) => {
+    return assignErrors(state, validationErrors, error);
+  }),
+  on(tweetActions.retweetReplySuccess, (state, { tweet }) => {
+    return pushTweetToTimeline(tweet, state);
+  }),
+  on(tweetActions.openTweetModal, (state) => ({
+    ...state,
+    postModal: true,
+  })),
+  on(tweetActions.closeTweetModal, (state) => ({
+    ...state,
+    postModal: false,
+  })),
+  on(tweetActions.clearTweetError, (state) => ({
     ...state,
     errror: null,
     validationErrors: null,

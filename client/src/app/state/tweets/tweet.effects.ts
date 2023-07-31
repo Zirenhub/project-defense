@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Actions, act, createEffect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import * as TweetActions from './tweet.actions';
-import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 import { TweetService } from './tweet.service';
 import { getErrors } from '../getErrors';
 import { Router } from '@angular/router';
@@ -14,6 +14,48 @@ export class TweetEffects {
     private tweetService: TweetService,
     private router: Router
   ) {}
+
+  postTweet$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TweetActions.postTweet),
+      mergeMap((action) =>
+        this.tweetService.postTweet(action.content).pipe(
+          map((res) => TweetActions.postTweetSuccess({ tweet: res.data })),
+          catchError((error) =>
+            of(TweetActions.postTweetFailure(getErrors(error)))
+          )
+        )
+      )
+    )
+  );
+
+  retweetTweet$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TweetActions.retweetTweet),
+      mergeMap((action) =>
+        this.tweetService.retweetTweet(action.id, action.content).pipe(
+          map((res) => TweetActions.retweetTweetSuccess({ tweet: res.data })),
+          catchError((error) =>
+            of(TweetActions.retweetTweetFailure(getErrors(error)))
+          )
+        )
+      )
+    )
+  );
+
+  retweetReply$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TweetActions.retweetReply),
+      mergeMap((action) =>
+        this.tweetService.retweetReply(action.id, action.content).pipe(
+          map((res) => TweetActions.retweetReplySuccess({ tweet: res.data })),
+          catchError((error) =>
+            of(TweetActions.retweetReplyFailure(getErrors(error)))
+          )
+        )
+      )
+    )
+  );
 
   getTimeline$ = createEffect(() =>
     this.actions$.pipe(
@@ -53,22 +95,22 @@ export class TweetEffects {
   );
 
   getReply$ = createEffect(() =>
-  this.actions$.pipe(
-    ofType(TweetActions.getReply),
-    mergeMap((action) =>
-      this.tweetService.getReply(action.id).pipe(
-        map((res) => TweetActions.getReplySuccess(res.data)),
-        catchError((error) =>
-          of(
-            TweetActions.getReplyFailure({
-              error: error.error.message || 'Unknown',
-            })
+    this.actions$.pipe(
+      ofType(TweetActions.getReply),
+      mergeMap((action) =>
+        this.tweetService.getReply(action.id).pipe(
+          map((res) => TweetActions.getReplySuccess(res.data)),
+          catchError((error) =>
+            of(
+              TweetActions.getReplyFailure({
+                error: error.error.message || 'Unknown',
+              })
+            )
           )
         )
       )
     )
-  )
-);
+  );
 
   likeTweet$ = createEffect(() =>
     this.actions$.pipe(
@@ -125,7 +167,9 @@ export class TweetEffects {
       ofType(TweetActions.postReplyToReply),
       mergeMap((action) =>
         this.tweetService.postReplyToReply(action.id, action.content).pipe(
-          map((res) => TweetActions.postReplySuccess({ reply: res.data })),
+          map((res) =>
+            TweetActions.postReplyToReplySuccess({ reply: res.data })
+          ),
           catchError((error) =>
             of(TweetActions.postReplyFailure(getErrors(error)))
           )
@@ -133,15 +177,4 @@ export class TweetEffects {
       )
     )
   );
-
-  // postReplyToReplySuccess$ = createEffect(
-  //   () =>
-  //     this.actions$.pipe(
-  //       ofType(TweetActions.postReplyToReplySuccess),
-  //       tap(({ reply }) => {
-  //         this.router.navigateByUrl('/home');
-  //       })
-  //     ),
-  //   { dispatch: false } // Set dispatch to false so it doesn't trigger any additional actions
-  // );
 }

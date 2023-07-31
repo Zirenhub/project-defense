@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import CommentModel from '../models/comment';
-import { body } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import { IComment } from '../interfaces/IComment';
 import LikeModel from '../models/likes';
 import { getExtraTweetInfo } from './tweetController';
 import mongoose, { Document, HydratedDocument } from 'mongoose';
+import TweetModel from '../models/tweet';
 
 export const reply = [
   body('content')
@@ -15,6 +16,14 @@ export const reply = [
     .withMessage('min length must be 1 and max length must be 150'),
   async (req: Request, res: Response) => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          status: 'error',
+          errors: errors.array(),
+          message: null,
+        });
+      }
       const replyId = req.params.id;
       const reply = await CommentModel.findById(replyId);
       if (!reply) {
@@ -86,7 +95,7 @@ export const get = async (req: Request, res: Response) => {
     const commentHierarchy = await fetchCommentHierarchy(reply);
     const childrenReplies = await CommentModel.find({ parent: reply._id })
       .populate('profile')
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: -1 });
 
     const modifiedTweet = await getExtraTweetInfo([tweet], userId);
     const modifedReplies = await getExtraTweetInfo(commentHierarchy, userId);
@@ -154,3 +163,62 @@ export const like = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const retweet = [
+  body('content')
+    .trim()
+    .notEmpty()
+    .withMessage('Reply cant be empty')
+    .isLength({ min: 1, max: 150 })
+    .withMessage('min length must be 1 and max length must be 150'),
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          status: 'error',
+          errors: errors.array(),
+          message: null,
+        });
+      }
+      const reply = res.locals.reply;
+      const { content } = req.body;
+
+      const newRetweet = new TweetModel({
+        profile: res.locals.user._id,
+        content,
+        retweet: {
+          originalModel: 'Comment',
+          original: reply._id,
+        },
+      });
+      await newRetweet.populate('profile');
+
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
+      reply.retweetsCount = reply.retweetsCount + 1;
+      await newRetweet.save({ session });
+      await reply.save({ session });
+
+      await session.commitTransaction();
+
+      const newRetweetObject = newRetweet.toObject();
+
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          ...newRetweetObject,
+          retweet: { ...newRetweetObject.retweet, original: reply },
+        },
+        message: null,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 'error',
+        errors: null,
+        message: err instanceof Error ? err.message : 'unknown',
+      });
+    }
+  },
+];

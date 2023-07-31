@@ -1,6 +1,6 @@
 import { JWTUser } from './Auth';
 import { FullReply, Reply, ReplyHierarchy } from './Reply';
-import { Tweet } from './Tweet';
+import { ReplyRetweet, Tweet } from './Tweet';
 import { User } from './User';
 
 export type ValidationErrors = { msg: string }[];
@@ -42,4 +42,12 @@ export interface PostReplyToReplyRes extends Api {
 
 export interface GetReplyRes extends Api {
   data: FullReply;
+}
+
+export interface PostTweetRes extends Api {
+  data: Tweet;
+}
+
+export interface ReplyRetweetRes extends Api {
+  data: ReplyRetweet;
 }

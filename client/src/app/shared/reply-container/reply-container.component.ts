@@ -27,5 +27,8 @@ export class ReplyContainerComponent {
 
   handleRetweet($event: Event) {
     $event.stopPropagation();
+    if (this.comment && !this.comment.isRetweeted) {
+      this.retweet.emit(this.comment._id);
+    }
   }
 }

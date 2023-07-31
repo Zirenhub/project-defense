@@ -1,7 +1,18 @@
+<div class="flex items-center gap-5 pt-3 px-3">
+  <button
+    (click)="back()"
+    class="border-2 rounded-md px-3 py-1 hover:bg-gray-300"
+  >
+    Back
+  </button>
+  <p class="font-bold text-xl">Tweet</p>
+</div>
+
 <app-open-tweet-container
   [content]="tweet"
   (like)="like($event, 'tweet')"
   (reply)="reply($event)"
+  (retweet)="retweet($event, 'tweet')"
 />
 <!-- Display replies if available -->
 <div *ngIf="replies" class="flex flex-col">
@@ -11,6 +22,7 @@
       (like)="like($event, 'reply')"
       (reply)="commentReply($event)"
       (click)="navigateToReply(reply._id)"
+      (retweet)="retweet($event, 'reply')"
     />
   </ng-container>
 </div>

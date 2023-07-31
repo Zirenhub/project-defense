@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Reply } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 
 @Component({
@@ -10,6 +11,26 @@ export class TweetContainerComponent {
   @Output() like = new EventEmitter<string>();
   @Output() reply = new EventEmitter<string>();
   @Output() retweet = new EventEmitter<string>();
+
+  get retweetReply() {
+    if (
+      this.tweet?.retweet.original &&
+      this.tweet.retweet.originalModel === 'Comment'
+    ) {
+      return this.tweet.retweet.original as Reply;
+    }
+    return null;
+  }
+
+  get retweetTweet() {
+    if (
+      this.tweet?.retweet.original &&
+      this.tweet.retweet.originalModel === 'Tweet'
+    ) {
+      return this.tweet.retweet.original as Tweet;
+    }
+    return null;
+  }
 
   handleLike($event: Event) {
     $event.stopPropagation();
@@ -27,5 +48,8 @@ export class TweetContainerComponent {
 
   handleRetweet($event: Event) {
     $event.stopPropagation();
+    if (this.tweet && !this.tweet.isRetweeted) {
+      this.retweet.emit(this.tweet._id);
+    }
   }
 }

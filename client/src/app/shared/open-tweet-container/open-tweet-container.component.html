@@ -27,7 +27,7 @@
     <button class="h-[20px] w-[20px]">
       <app-svg-reply fillColor="gray" />
     </button>
-    <button class="h-[16px] w-[20px]">
+    <button class="h-[16px] w-[20px]" (click)="handleRetweet()">
       <app-svg-retweet [fillColor]="content.isRetweeted ? 'green' : 'gray'" />
     </button>
     <button class="h-[17px] w-[17px]" (click)="handleLike()">

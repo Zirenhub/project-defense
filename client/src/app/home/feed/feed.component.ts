@@ -7,6 +7,7 @@ import {
   getTimeline,
   likeTweet,
   openReplyModal,
+  openRetweetModal,
 } from 'src/app/state/tweets/tweet.actions';
 import { Timeline } from 'src/app/state/tweets/tweet.reducer';
 import { selectTweetTimline } from 'src/app/state/tweets/tweet.selectors';
@@ -33,10 +34,19 @@ export class FeedComponent implements OnDestroy {
     });
   }
 
-  openReplyModal(id: string) {
+  handleOpenReplyModal(id: string) {
     const tweet = this.timeline.find((x) => x._id === id);
     if (tweet) {
       this.store.dispatch(openReplyModal({ id: tweet._id, context: 'tweet' }));
+    }
+  }
+
+  handleOpenRetweetModal(id: string) {
+    const tweet = this.timeline.find((x) => x._id === id);
+    if (tweet) {
+      this.store.dispatch(
+        openRetweetModal({ id: tweet._id, context: 'tweet' })
+      );
     }
   }
 

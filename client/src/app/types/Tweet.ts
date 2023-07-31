@@ -3,7 +3,7 @@ import { User } from './User';
 
 export interface Tweet {
   retweet: {
-    originalModel: 'tweet' | 'reply' | null;
+    originalModel: 'Tweet' | 'Comment' | null;
     original: Tweet | Reply | null;
   };
   _id: string;
@@ -18,4 +18,12 @@ export interface Tweet {
   isLiked: boolean;
   isRetweeted: boolean;
   __v: number;
+}
+
+export interface ReplyRetweet extends Tweet {
+  retweet: { originalModel: 'Comment'; original: Reply };
+}
+
+export interface TweetRetweet extends Tweet {
+  retweet: { originalModel: 'Tweet'; original: Tweet };
 }
