@@ -4,7 +4,6 @@ import { ILike } from '../interfaces/ILike';
 const Schema = mongoose.Schema;
 
 const LikeSchema = new Schema<ILike>({
-  tweet: { type: Schema.Types.ObjectId, required: true, unique: true },
   likes: [
     {
       type: Schema.Types.ObjectId,
@@ -12,26 +11,43 @@ const LikeSchema = new Schema<ILike>({
       required: true,
     },
   ],
+  type: {
+    originalModel: {
+      type: String,
+      enum: ['Tweet', 'Comment'],
+      required: true,
+    },
+    original: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      unique: true,
+      refPath: 'type.originalModel',
+    },
+  },
 });
 
 LikeSchema.statics.likeTweet = async function (
   tweetId: Types.ObjectId,
-  userId: string
+  userId: string,
+  context: 'Tweet' | 'Reply'
 ): Promise<{
   status: 'success' | 'error';
   model: ILike;
   likeOrDislike: 'like' | 'dislike';
 }> {
-  let model = await this.findOne({ tweet: tweetId });
+  let model = await this.findOne({ 'type.original': tweetId });
 
   let likeOrDislike: 'like' | 'dislike' = 'like';
 
   if (!model) {
-    model = await this.create({ tweet: tweetId, likes: [userId] });
+    model = await this.create({
+      type: { original: tweetId, originalModel: context },
+      likes: [userId],
+    });
   } else {
     if (model.likes.includes(userId)) {
       model.likes = model.likes.filter(
-        (x: mongoose.Schema.Types.ObjectId) => x.toString() !== userId
+        (id: Types.ObjectId) => id.toString() !== userId
       );
       await model.save();
       likeOrDislike = 'dislike';
@@ -47,7 +63,8 @@ LikeSchema.statics.likeTweet = async function (
 interface ILikeModel extends Model<ILike, {}> {
   likeTweet(
     tweetId: Types.ObjectId,
-    userId: string
+    userId: string,
+    context: 'Tweet' | 'Comment'
   ): Promise<{
     status: 'success' | 'error';
     model: ILike;

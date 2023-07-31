@@ -1,6 +1,9 @@
 import { Types } from 'mongoose';
 
 export interface ILike {
-  tweet: Types.ObjectId;
   likes: Types.ObjectId[];
+  type: {
+    originalModel: 'Tweet' | 'Comment';
+    original: Types.ObjectId;
+  };
 }

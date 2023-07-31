@@ -9,7 +9,7 @@ export const getExtraTweetInfo = async (tweets: Document[], userId: string) => {
   const filledTweets = await Promise.all(
     tweets.map(async (tweet) => {
       const isLiked = await LikeModel.exists({
-        tweet: tweet._id,
+        'type.original': tweet._id,
         likes: userId,
       });
       const isRetweeted = await TweetModel.find({
@@ -67,7 +67,11 @@ export const create = [
 export const like = async (req: Request, res: Response) => {
   try {
     const tweet = res.locals.tweet;
-    const response = await LikeModel.likeTweet(tweet._id, res.locals.user._id);
+    const response = await LikeModel.likeTweet(
+      tweet._id,
+      res.locals.user._id,
+      'Tweet'
+    );
     if (response.status === 'success') {
       tweet.likesCount = response.model.likes.length;
     } else {

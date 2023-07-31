@@ -136,7 +136,11 @@ export const like = async (req: Request, res: Response) => {
         message: 'Reply not found',
       });
     }
-    const response = await LikeModel.likeTweet(reply._id, res.locals.user._id);
+    const response = await LikeModel.likeTweet(
+      reply._id,
+      res.locals.user._id,
+      'Comment'
+    );
 
     if (response.status === 'success') {
       reply.likesCount = response.model.likes.length;
