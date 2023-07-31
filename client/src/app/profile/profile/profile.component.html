@@ -51,7 +51,16 @@
     <p *ngIf="tweets.length === 0" class="text-center text-gray-400">
       There is nothing here yet!
     </p>
-    <app-tweet-feed [tweets]="tweets" />
+    <div class="flex flex-col gap-1">
+      <div *ngFor="let tweet of tweets" (click)="navigateToLike(tweet)">
+        <app-tweet-container
+          [tweet]="tweet"
+          (reply)="handleReply(tweet)"
+          (like)="handleLike(tweet)"
+          (retweet)="handleRetweet(tweet)"
+        />
+      </div>
+    </div>
   </ng-container>
 
   <ng-container *ngIf="activePage === 'Likes' && (likes$ | async) as likes">

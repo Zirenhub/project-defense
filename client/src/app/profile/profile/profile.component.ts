@@ -1,11 +1,5 @@
 import { Location } from '@angular/common';
-import {
-  Component,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
@@ -20,12 +14,8 @@ import {
   selectProfileLikes,
   selectProfileTweets,
 } from 'src/app/state/profile/profile.selectors';
-import {
-  closeReplyingToModal,
-  likeReply,
-  likeTweet,
-  openReplyModal,
-} from 'src/app/state/tweets/tweet.actions';
+import { likeReply, likeTweet } from 'src/app/state/tweets/tweet.actions';
+
 import { Reply } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 import { User } from 'src/app/types/User';
@@ -91,11 +81,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   handleLike(like: Tweet | Reply) {
-    // if ('parent' in like) {
-    //   this.store.dispatch(likeReply({ id: like._id }));
-    // } else {
-    //   this.store.dispatch(likeTweet({ id: like._id }));
-    // }
+    if ('parent' in like) {
+      this.store.dispatch(likeReply({ id: like._id, isOnProfile: true }));
+    } else {
+      this.store.dispatch(likeTweet({ id: like._id, isOnProfile: true }));
+    }
   }
   handleReply(like: Tweet | Reply) {
     // this.store.dispatch(

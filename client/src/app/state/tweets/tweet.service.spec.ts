@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TweetService } from './tweet.service';
+import { TweetService } from '../tweet.service';
 
 describe('TweetService', () => {
   let service: TweetService;

@@ -35,7 +35,7 @@ export class TweetFeedComponent {
   }
 
   like(id: string) {
-    this.store.dispatch(likeTweet({ id }));
+    this.store.dispatch(likeTweet({ id, isOnProfile: false }));
   }
 
   openTweet(id: string) {

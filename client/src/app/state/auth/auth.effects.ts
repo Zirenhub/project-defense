@@ -63,17 +63,28 @@ export class AuthEffects {
     )
   );
 
-  // logout$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(logout),
-  //     mergeMap(() =>
-  //       this.authService.logout().pipe(
-  //         map(() => logoutSuccess()),
-  //         catchError((error) => of(logoutFailure({ error: error.message })))
-  //       )
-  //     )
-  //   )
-  // );
+  logout$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.logout),
+      mergeMap(() =>
+        this.authService.logout().pipe(
+          map(() => AuthActions.logoutSuccess()),
+          catchError((error) =>
+            of(AuthActions.logoutFailure({ error: error.message }))
+          )
+        )
+      )
+    )
+  );
+
+  logoutSuccess$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.logoutSuccess),
+      tap(() => {
+        this.router.navigate(['/auth']);
+      })
+    )
+  );
 
   signup$ = createEffect(() =>
     this.actions$.pipe(

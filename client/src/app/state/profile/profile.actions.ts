@@ -41,3 +41,12 @@ export const profileTweetsFailure = createAction(
   '[Profile] Profile Tweets Failure',
   props<{ error: string }>()
 );
+
+export const profileLikeTweetSuccess = createAction(
+  '[Profile] Profile Like Tweet Success',
+  props<{ _id: string; likeOrDislike: 'like' | 'dislike' }>()
+);
+export const profileLikeTweetFailure = createAction(
+  '[Profile] Profile Like Tweet Failure',
+  props<{ error: string }>()
+);

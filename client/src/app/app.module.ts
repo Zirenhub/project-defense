@@ -14,7 +14,7 @@ import { SharedModule } from './shared/shared.module';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { AuthGuard } from './shared/guards/auth.guard';
 import { tweetReducer } from './state/tweets/tweet.reducer';
-import { TweetService } from './state/tweets/tweet.service';
+import { TweetService } from './state/tweet.service';
 import { TweetEffects } from './state/tweets/tweet.effects';
 import { HomeModule } from './home/home.module';
 import { TweetModule } from './tweet/tweet.module';

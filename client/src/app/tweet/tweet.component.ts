@@ -75,9 +75,9 @@ export class TweetComponent implements OnInit, OnDestroy {
 
   like(id: string, type: 'tweet' | 'reply') {
     if (type === 'tweet') {
-      this.store.dispatch(likeTweet({ id }));
+      this.store.dispatch(likeTweet({ id, isOnProfile: false }));
     } else {
-      this.store.dispatch(likeReply({ id }));
+      this.store.dispatch(likeReply({ id, isOnProfile: false }));
     }
   }
 

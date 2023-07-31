@@ -123,7 +123,7 @@ export const getReplyFailure = createAction(
 
 export const likeTweet = createAction(
   '[Tweet] Like Tweet',
-  props<{ id: string }>()
+  props<{ id: string; isOnProfile: boolean }>()
 );
 
 export const likeTweetSuccess = createAction(
@@ -138,7 +138,7 @@ export const likeTweetFailure = createAction(
 
 export const likeReply = createAction(
   '[Tweet] Like Reply',
-  props<{ id: string }>()
+  props<{ id: string; isOnProfile: boolean }>()
 );
 
 export const likeReplySuccess = createAction(

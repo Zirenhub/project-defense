@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { LogIn, SignUp } from './types/Auth';
-import { CheckAuthRes, SignUpRes } from './types/Api';
+import { Api, CheckAuthRes, SignUpRes } from './types/Api';
 
 @Injectable()
 export class AuthService {
@@ -17,5 +17,9 @@ export class AuthService {
 
   checkAuth() {
     return this.http.get<CheckAuthRes>('/api/auth/me');
+  }
+
+  logout() {
+    return this.http.post<Api>('/api/auth/logout', {});
   }
 }

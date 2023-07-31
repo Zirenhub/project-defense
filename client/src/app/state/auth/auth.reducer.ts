@@ -93,6 +93,12 @@ export const authReducer = createReducer(
     error: 'Unauthorized',
     status: 'error' as const,
   })),
+  on(logoutSuccess, (state) => ({
+    user: null,
+    error: null,
+    validationErrors: null,
+    status: 'pending' as const,
+  })),
   on(clearAuthError, (state) => ({
     ...state,
     error: null,

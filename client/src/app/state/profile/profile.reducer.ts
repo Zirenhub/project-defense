@@ -3,6 +3,7 @@ import { Tweet } from 'src/app/types/Tweet';
 import { Reply } from 'src/app/types/Reply';
 import {
   profileFailure,
+  profileLikeTweetSuccess,
   profileLikesFailure,
   profileLikesSuccess,
   profileSuccess,
@@ -54,6 +55,35 @@ export const profileReducer = createReducer(
   on(profileLikesSuccess, (state, { likes }) => ({
     ...state,
     likes,
+    status: 'success' as const,
+  })),
+  on(profileLikesFailure, (state, { error }) => ({
+    ...state,
+    error,
+    status: 'error' as const,
+  })),
+  on(profileLikeTweetSuccess, (state, { _id, likeOrDislike }) => ({
+    ...state,
+    likes: state.likes.map((x) =>
+      x._id === _id
+        ? {
+            ...x,
+            isLiked: likeOrDislike === 'like' ? true : false,
+            likesCount:
+              likeOrDislike === 'like' ? x.likesCount + 1 : x.likesCount - 1,
+          }
+        : { ...x }
+    ),
+    tweets: state.tweets.map((x) =>
+      x._id === _id
+        ? {
+            ...x,
+            isLiked: likeOrDislike === 'like' ? true : false,
+            likesCount:
+              likeOrDislike === 'like' ? x.likesCount + 1 : x.likesCount - 1,
+          }
+        : { ...x }
+    ),
     status: 'success' as const,
   })),
   on(profileLikesFailure, (state, { error }) => ({
