@@ -2,6 +2,7 @@ import { createReducer, on } from '@ngrx/store';
 import {
   clearTweetError,
   closeReplyingToModal,
+  getReplySuccess,
   getTimeline,
   getTimelineFailure,
   getTimelineSuccess,
@@ -11,10 +12,10 @@ import {
   likeReplySuccess,
   likeTweetFailure,
   likeTweetSuccess,
-  openReplyCommentModal,
-  openReplyTweetModal,
+  openReplyModal,
   postReplyFailure,
   postReplySuccess,
+  postReplyToReplySuccess,
   postTweetSuccess,
 } from './tweet.actions';
 import { Tweet } from 'src/app/types/Tweet';
@@ -34,13 +35,22 @@ export interface IReply {
   tweet: Tweet;
   parents: Reply[];
   reply: Reply;
-  chilren: Reply[];
+  children: Reply[];
+}
+
+export interface ReplyingTo {
+  _id: string;
+  type: 'tweet' | 'reply';
+  content: string;
+  firstName: string;
+  lastName: string;
+  at: string;
+  affected: string[];
 }
 
 export interface TweetState {
   content: Single | Timeline | IReply | null;
-  replyingToTweet: Tweet | null;
-  replyingToReply: Reply | null;
+  replyingTo: ReplyingTo | null;
   error: string | null;
   validationErrors: ValidationErrors | null;
   status: 'pending' | 'loading' | 'error' | 'success';
@@ -49,8 +59,7 @@ export interface TweetState {
 
 export const initialState: TweetState = {
   content: null,
-  replyingToTweet: null,
-  replyingToReply: null,
+  replyingTo: null,
   error: null,
   validationErrors: null,
   status: 'pending',
@@ -90,7 +99,7 @@ const likeDislike = (
         ...content,
         parents: mapArr(content.parents) as Reply[],
         reply: mapArr([content.reply])[0] as Reply,
-        chilren: mapArr(content.chilren) as Reply[],
+        children: mapArr(content.children) as Reply[],
       };
     }
   }
@@ -129,75 +138,95 @@ export const tweetReducer = createReducer(
   // })),
   on(getTimeline, (state) => loadingState(state)),
   on(getTweet, (state) => loadingState(state)),
-  on(openReplyCommentModal, (state, { id }) => {
+  on(openReplyModal, (state, { id, context }) => {
     let currentState = state.content;
-    if (state.tweetType === 'single') {
-      currentState = currentState as Single;
-      const reply = currentState.replies.find((x) => x._id === id);
-      if (reply) {
-        return {
-          ...state,
-          replyingToReply: reply,
-          replyingToTweet: null,
-          status: 'success' as const,
+    let replyingTo: any; // give type
+
+    if (context === 'tweet') {
+      if (state.tweetType === 'timeline') {
+        currentState = currentState as Timeline;
+        const tweet = currentState.tweets.find((x) => x._id === id);
+        if (tweet) {
+          replyingTo = {
+            content: tweet.content,
+            _id: tweet._id,
+            type: 'tweet' as const,
+            at: tweet.profile.at,
+            firstName: tweet.profile.firstName,
+            lastName: tweet.profile.lastName,
+            affected: [tweet.profile.at],
+          };
+        }
+      } else {
+        currentState = currentState as IReply | Single;
+        const tweet = currentState.tweet;
+        replyingTo = {
+          content: tweet.content,
+          _id: tweet._id,
+          type: 'tweet' as const,
+          at: tweet.profile.at,
+          firstName: tweet.profile.firstName,
+          lastName: tweet.profile.lastName,
+          affected: [tweet.profile.at],
         };
       }
-    }
-    if (state.tweetType === 'reply') {
-      currentState = currentState as IReply;
-      const reply = currentState.parents
-        .concat(currentState.reply)
-        .find((x) => x._id === id);
-      if (reply) {
-        return {
-          ...state,
-          replyingToReply: reply,
-          replyingToTweet: null,
-          status: 'success' as const,
-        };
+    } else if (context === 'reply') {
+      if (state.tweetType === 'single') {
+        currentState = currentState as Single;
+        const reply = currentState.replies.find((x) => x._id === id);
+        if (reply) {
+          replyingTo = {
+            _id: reply._id,
+            type: 'reply' as const,
+            content: reply.content,
+            at: reply.profile.at,
+            firstName: reply.profile.firstName,
+            lastName: reply.profile.lastName,
+            affected: [currentState.tweet.profile.at, reply.profile.at],
+          };
+        }
+      } else if (state.tweetType === 'reply') {
+        currentState = currentState as IReply;
+        const reply = currentState.parents
+          .concat(currentState.reply)
+          .find((x) => x._id === id);
+        if (reply) {
+          const affected = [currentState.tweet.profile.at, reply.profile.at];
+          if (reply.parent) {
+            affected.push('and more');
+          }
+          replyingTo = {
+            content: reply.content,
+            _id: reply._id,
+            type: 'reply' as const,
+            at: reply.profile.at,
+            firstName: reply.profile.firstName,
+            lastName: reply.profile.lastName,
+            affected,
+          };
+        }
       }
     }
-    return {
-      ...state,
-      status: 'error' as const,
-      error: 'Failed to find reply',
-    };
-  }),
-  on(openReplyTweetModal, (state, { id }) => {
-    let currentState = state.content;
-    if (state.tweetType === 'timeline') {
-      currentState = currentState as Timeline;
-      const tweet = currentState.tweets.find((x) => x._id === id);
-      if (tweet) {
-        return {
-          ...state,
-          replyingToTweet: tweet,
-          replyingToReply: null,
-          status: 'success' as const,
-        };
-      }
-    }
-    if (state.tweetType === 'reply' || state.tweetType === 'single') {
-      currentState = currentState as IReply | Single;
-      const tweet = currentState.tweet;
+
+    if (replyingTo) {
       return {
         ...state,
-        replyingToTweet: tweet,
-        replyingToReply: null,
+        replyingTo,
         status: 'success' as const,
       };
+    } else {
+      return {
+        ...state,
+        status: 'error' as const,
+        error:
+          context === 'tweet' ? 'Failed to find tweet' : 'Failed to find reply',
+      };
     }
-    return {
-      ...state,
-      status: 'error' as const,
-      error: 'Failed to find tweet',
-    };
   }),
   on(closeReplyingToModal, (state) => ({
     ...state,
     status: 'success' as const,
-    replyingToReply: null,
-    replyingToTweet: null,
+    replyingTo: null,
   })),
   on(getTimelineSuccess, (state, { timeline }) => ({
     ...state,
@@ -235,13 +264,34 @@ export const tweetReducer = createReducer(
   })),
   on(postReplySuccess, (state, { reply }) => {
     let content = state.content;
+    if (state.tweetType === 'timeline') {
+      content = content as Timeline;
+      content = {
+        ...content,
+        tweets: content.tweets.map((x) =>
+          x._id === reply.tweet._id
+            ? { ...x, repliesCount: x.repliesCount + 1 }
+            : { ...x }
+        ),
+      };
+    }
     if (state.tweetType === 'reply') {
       content = content as IReply;
-      content.chilren = [...content.chilren, reply];
+      content = { ...content, children: [...content.children, reply] };
     }
     if (state.tweetType === 'single') {
       content = content as Single;
-      content.replies = [reply, ...content.replies];
+      let replies: Reply[];
+      if (reply.parent) {
+        replies = content.replies.map((x) =>
+          x._id === reply.parent
+            ? { ...x, repliesCount: x.repliesCount + 1 }
+            : { ...x }
+        );
+      } else {
+        replies = [reply, ...content.replies];
+      }
+      content = { ...content, replies };
     }
     return {
       ...state,
@@ -266,6 +316,14 @@ export const tweetReducer = createReducer(
       };
     }
     return { ...state };
+  }),
+  on(getReplySuccess, (state, { tweet, reply, parents, children }) => {
+    return {
+      ...state,
+      status: 'success' as const,
+      tweetType: 'reply' as const,
+      content: { tweet, reply, parents, children },
+    };
   }),
   on(clearTweetError, (state) => ({
     ...state,

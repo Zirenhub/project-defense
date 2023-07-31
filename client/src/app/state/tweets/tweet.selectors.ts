@@ -39,6 +39,17 @@ export const selectTweetSingle = createSelector(
   }
 );
 
+export const selectTweetReply = createSelector(
+  selectContent,
+  selectTweetType,
+  (content, tweetType) => {
+    if (tweetType === 'reply') {
+      return content as IReply;
+    }
+    return null;
+  }
+);
+
 export const selectTweetsStatus = createSelector(
   selectTweets,
   (state: TweetState) => state.status
@@ -54,12 +65,7 @@ export const selectTweetValidationErrors = createSelector(
   (state: TweetState) => state.validationErrors
 );
 
-export const selectReplyingToTweet = createSelector(
+export const selectReplyingTo = createSelector(
   selectTweets,
-  (state: TweetState) => state.replyingToTweet
-);
-
-export const selectReplyingToReply = createSelector(
-  selectTweets,
-  (state: TweetState) => state.replyingToReply
+  (state: TweetState) => state.replyingTo
 );
