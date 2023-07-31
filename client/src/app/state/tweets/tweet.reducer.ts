@@ -242,6 +242,7 @@ export const tweetReducer = createReducer(
 
   on(tweetActions.getTimeline, (state) => loadingState(state)),
   on(tweetActions.getTweet, (state) => loadingState(state)),
+  on(tweetActions.getReply, (state) => loadingState(state)),
   on(tweetActions.openReplyModal, (state, { id, context }) => {
     let replyingTo = findTweetOrReplyById(state, id, context);
     if (replyingTo) {

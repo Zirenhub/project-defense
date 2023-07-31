@@ -1,7 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { ValidationErrors } from 'src/app/types/Api';
 import { SignUp } from 'src/app/types/Auth';
-import { User } from 'src/app/types/User';
+import { AuthUser, User } from 'src/app/types/User';
 
 export const login = createAction(
   '[Auth] Login',
@@ -27,7 +27,7 @@ export const signup = createAction('[Auth] Signup', props<SignUp>());
 
 export const signupSuccess = createAction(
   '[Auth] Signup Success',
-  props<{ user: User }>()
+  props<{ user: AuthUser }>()
 );
 
 export const signupFailure = createAction(
