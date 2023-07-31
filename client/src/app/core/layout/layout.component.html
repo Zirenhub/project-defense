@@ -8,7 +8,7 @@
 </ng-container>
 
 <div
-  *ngIf="replyingToTweet$ | async as replyingTo"
+  *ngIf="replyingTo$ | async as replyingTo"
   class="z-40 flex justify-center items-center absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 bg-gray-300/40 h-full w-full"
 >
   <div
@@ -23,18 +23,15 @@
         <div class="flex">
           <p>
             <span class="font-bold"
-              >{{ replyingTo.profile.firstName }}
-              {{ replyingTo.profile.lastName }}</span
+              >{{ replyingTo.firstName }} {{ replyingTo.lastName }}</span
             >
-            <span class="text-gray-500 text-sm">
-              @{{ replyingTo.profile.at }}
-            </span>
+            <span class="text-gray-500 text-sm"> @{{ replyingTo.at }} </span>
           </p>
         </div>
         <p>{{ replyingTo.content }}</p>
         <p>
           <span class="text-gray-500 text-sm">Replying to</span
-          ><span class="text-blue-500">@{{ replyingTo.profile.at }}</span>
+          ><span class="text-blue-500">@{{ replyingTo.at }}</span>
         </p>
       </div>
     </div>
@@ -45,9 +42,11 @@
           type="text"
           placeholder="Tweet your reply!"
           class="border rounded-sm px-3 py-1 w-full"
+          [(ngModel)]="replyText"
         />
       </div>
       <button
+        (click)="reply(replyingTo._id, replyingTo.type)"
         class="bg-blue-500 hover:bg-blue-400 transition-all ml-auto px-3 py-1 text-white rounded-lg shadow-sm"
       >
         Reply
