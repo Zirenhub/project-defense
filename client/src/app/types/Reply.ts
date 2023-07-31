@@ -6,7 +6,7 @@ export interface Reply {
   tweet: Tweet;
   content: string;
   image: string | null;
-  parent: string | null;
+  parent: Reply | string | null;
   repliesCount: number;
   retweetsCount: number;
   likesCount: number;
@@ -18,7 +18,18 @@ export interface Reply {
   isRetweeted: boolean;
 }
 
+export interface ReplyWithParent extends Reply {
+  parent: Reply;
+}
+
 export interface ReplyHierarchy {
   tweet: Tweet;
   replies: Reply[];
+}
+
+export interface FullReply {
+  tweet: Tweet;
+  parents: Reply[];
+  reply: Reply;
+  children: Reply[];
 }
