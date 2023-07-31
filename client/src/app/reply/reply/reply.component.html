@@ -1,0 +1,46 @@
+<ng-container *ngIf="tweet">
+  <app-tweet-container
+    [tweet]="tweet"
+    (like)="like($event, 'tweet')"
+    (reply)="commentReply($event)"
+    (click)="navigate(tweet._id, 'tweet')"
+  />
+</ng-container>
+
+<div *ngIf="parents" class="flex flex-col">
+  <ng-container *ngFor="let reply of parents">
+    <app-reply-container
+      [comment]="reply"
+      (like)="like($event, 'reply')"
+      (reply)="commentReply($event)"
+      (click)="navigate(reply._id, 'reply')"
+    />
+  </ng-container>
+</div>
+
+<app-open-tweet-container [content]="reply" (like)="like($event, 'reply')" />
+
+<!-- <div class="flex items-center gap-5">
+  <button
+    (click)="back()"
+    class="border-2 rounded-md px-3 py-1 hover:bg-gray-300"
+  >
+    Back
+  </button>
+  <p class="font-bold text-xl">Tweet</p>
+</div> -->
+
+<div *ngIf="children" class="flex flex-col">
+  <ng-container *ngFor="let reply of children">
+    <app-reply-container
+      [comment]="reply"
+      (like)="like($event, 'reply')"
+      (reply)="commentReply($event)"
+      (click)="navigate(reply._id, 'reply')"
+    />
+  </ng-container>
+</div>
+
+<ng-template #loading>
+  <p class="text-center">Loading...</p>
+</ng-template>

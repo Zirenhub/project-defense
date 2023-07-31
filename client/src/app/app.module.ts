@@ -18,6 +18,7 @@ import { TweetService } from './state/tweets/tweet.service';
 import { TweetEffects } from './state/tweets/tweet.effects';
 import { HomeModule } from './home/home.module';
 import { TweetModule } from './tweet/tweet.module';
+import { ReplyModule } from './reply/reply.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -28,6 +29,7 @@ import { TweetModule } from './tweet/tweet.module';
     SharedModule,
     HomeModule,
     TweetModule,
+    ReplyModule,
     StoreModule.forRoot({ auth: authReducer, tweets: tweetReducer }),
     EffectsModule.forRoot([AuthEffects, TweetEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
