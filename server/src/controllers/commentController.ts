@@ -45,7 +45,7 @@ export const reply = [
 
       return res.status(200).json({
         status: 'success',
-        data: { ...newReply.toObject(), parent: reply.toObject() },
+        data: { ...newReply.toObject(), parent: reply._id },
         message: null,
       });
     } catch (err) {
