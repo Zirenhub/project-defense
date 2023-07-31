@@ -51,3 +51,15 @@ export interface PostTweetRes extends Api {
 export interface ReplyRetweetRes extends Api {
   data: ReplyRetweet;
 }
+
+export interface ProfileTweetsRes extends Api {
+  data: Tweet[];
+}
+
+export interface GetProfileRes extends Api {
+  data: User;
+}
+
+export interface GetProfileLikes extends Api {
+  data: (Tweet | Reply)[];
+}

@@ -12,3 +12,8 @@ export interface User {
   updatedAt: string;
   __v: number;
 }
+
+export interface AuthUser extends User {
+  email: string;
+  password: string;
+}
