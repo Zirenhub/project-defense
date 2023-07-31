@@ -9,6 +9,7 @@ import cors from 'cors';
 import authRoute from './routes/authRoute';
 import tweetRoute from './routes/tweetRoute';
 import commentRoute from './routes/commentRoute';
+import profileRoute from './routes/profileRoute';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use(
 router.use('/auth', authRoute);
 router.use('/tweet', tweetRoute);
 router.use('/comment', commentRoute);
+router.use('/profile', profileRoute);
 
 app.use('/api', router);
 
