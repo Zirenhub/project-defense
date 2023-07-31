@@ -5,7 +5,8 @@ import { Observable, Subscription } from 'rxjs';
 import { AppState } from 'src/app/state/app.state';
 import {
   getTimeline,
-  openReplyTweetModal,
+  likeTweet,
+  openReplyModal,
 } from 'src/app/state/tweets/tweet.actions';
 import { Timeline } from 'src/app/state/tweets/tweet.reducer';
 import { selectTweetTimline } from 'src/app/state/tweets/tweet.selectors';
@@ -35,8 +36,12 @@ export class FeedComponent implements OnDestroy {
   openReplyModal(id: string) {
     const tweet = this.timeline.find((x) => x._id === id);
     if (tweet) {
-      this.store.dispatch(openReplyTweetModal({ id: tweet._id }));
+      this.store.dispatch(openReplyModal({ id: tweet._id, context: 'tweet' }));
     }
+  }
+
+  like(id: string) {
+    this.store.dispatch(likeTweet({ id }));
   }
 
   openTweet(id: string) {
