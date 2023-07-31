@@ -5,16 +5,16 @@ import { AppState } from 'src/app/state/app.state';
 import {
   clearTweetError,
   closeReplyingToModal,
+  postReply,
+  postReplyToReply,
 } from 'src/app/state/tweets/tweet.actions';
+import { ReplyingTo } from 'src/app/state/tweets/tweet.reducer';
 import {
-  selectReplyingToReply,
-  selectReplyingToTweet,
+  selectReplyingTo,
   selectTweetError,
   selectTweetValidationErrors,
 } from 'src/app/state/tweets/tweet.selectors';
 import { ValidationErrors } from 'src/app/types/Api';
-import { Reply } from 'src/app/types/Reply';
-import { Tweet } from 'src/app/types/Tweet';
 
 @Component({
   selector: 'app-layout',
@@ -23,8 +23,7 @@ import { Tweet } from 'src/app/types/Tweet';
 export class LayoutComponent implements OnDestroy {
   error$: Observable<string | null>;
   validationErrors$: Observable<ValidationErrors | null>;
-  replyingToTweet$: Observable<Tweet | null>;
-  replyingToReply$: Observable<Reply | null>;
+  replyingTo$: Observable<ReplyingTo | null>;
 
   replyText: string = '';
 
@@ -37,8 +36,7 @@ export class LayoutComponent implements OnDestroy {
   constructor(private store: Store<AppState>) {
     this.error$ = this.store.select(selectTweetError);
     this.validationErrors$ = this.store.select(selectTweetValidationErrors);
-    this.replyingToTweet$ = this.store.select(selectReplyingToTweet);
-    this.replyingToReply$ = this.store.select(selectReplyingToReply);
+    this.replyingTo$ = this.store.select(selectReplyingTo);
 
     this.errorSubscription = this.error$.subscribe((error) => {
       this.error = error;
@@ -55,13 +53,16 @@ export class LayoutComponent implements OnDestroy {
     this.store.dispatch(closeReplyingToModal());
   }
 
-  reply() {
-    // if (this.replyText ) {
-    //   this.store.dispatch(
-    //     postReply({ id: this.tweetId, content: this.replyText })
-    //   );
-    //   this.replyText = '';
-    // }
+  reply(id: string, type: 'tweet' | 'reply') {
+    if (this.replyText) {
+      if (type === 'reply') {
+        this.store.dispatch(postReplyToReply({ id, content: this.replyText }));
+      } else {
+        this.store.dispatch(postReply({ id, content: this.replyText }));
+      }
+    }
+    this.replyText = '';
+    this.closeReplyingTo();
   }
 
   removeErrors() {
