@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { Reply } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 
@@ -12,7 +13,14 @@ export class OpenTweetContainerComponent {
   @Output() retweet = new EventEmitter<string>();
   @Output() reply = new EventEmitter<string>();
 
+  constructor(private router: Router) {}
+
   replyText: string = '';
+
+  navigateToProfile($event: Event) {
+    $event.stopPropagation();
+    this.router.navigateByUrl(`/profile/${this.content?.profile._id}`);
+  }
 
   handleLike() {
     if (this.content) {

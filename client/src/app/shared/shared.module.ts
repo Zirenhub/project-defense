@@ -11,6 +11,7 @@ import { OpenTweetContainerComponent } from './open-tweet-container/open-tweet-c
 import { FormsModule } from '@angular/forms';
 import { RetweetReplyContainerComponent } from './retweet-reply-container/retweet-reply-container.component';
 import { RetweetTweetContainerComponent } from './retweet-tweet-container/retweet-tweet-container.component';
+import { TweetFeedComponent } from './tweet-feed/tweet-feed.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { RetweetTweetContainerComponent } from './retweet-tweet-container/retwee
     OpenTweetContainerComponent,
     RetweetReplyContainerComponent,
     RetweetTweetContainerComponent,
+    TweetFeedComponent,
   ],
   imports: [CommonModule, FormsModule],
   exports: [
@@ -37,6 +39,7 @@ import { RetweetTweetContainerComponent } from './retweet-tweet-container/retwee
     OpenTweetContainerComponent,
     RetweetReplyContainerComponent,
     RetweetTweetContainerComponent,
+    TweetFeedComponent,
   ],
 })
 export class SharedModule {}

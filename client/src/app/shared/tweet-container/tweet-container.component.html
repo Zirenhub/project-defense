@@ -5,8 +5,8 @@
   />
   <div class="flex flex-col w-full">
     <div class="flex flex-col">
-      <p>
-        <span class="font-bold"
+      <p (click)="navigateToProfile($event)">
+        <span class="font-bold hover:underline"
           >{{ tweet?.profile?.firstName }} {{ tweet?.profile?.lastName }}</span
         ><span class="text-gray-400 pl-2">@{{ tweet?.profile?.at }}</span>
       </p>

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { Reply } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 
@@ -11,6 +12,8 @@ export class TweetContainerComponent {
   @Output() like = new EventEmitter<string>();
   @Output() reply = new EventEmitter<string>();
   @Output() retweet = new EventEmitter<string>();
+
+  constructor(private router: Router) {}
 
   get retweetReply() {
     if (
@@ -30,6 +33,11 @@ export class TweetContainerComponent {
       return this.tweet.retweet.original as Tweet;
     }
     return null;
+  }
+
+  navigateToProfile($event: Event) {
+    $event.stopPropagation();
+    this.router.navigateByUrl(`/profile/${this.tweet?.profile._id}`);
   }
 
   handleLike($event: Event) {
