@@ -12,7 +12,7 @@ import {
 } from 'src/app/types/Api';
 
 @Injectable()
-export class TweetService {
+export class SharedService {
   constructor(private http: HttpClient) {}
 
   getTimeline() {
