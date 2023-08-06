@@ -5,6 +5,7 @@ import { Tweet } from 'src/app/types/Tweet';
 import * as replyActions from './reply.actions';
 import { mapToggleLike, toggleLike } from '../shared/toggleLike';
 import { mapToggleRetweet, toggleRetweet } from '../shared/toggleRetweet';
+import { incRepliesCount, mapIncRepliesCount } from '../shared/toggleReply';
 
 export interface IReply {
   tweet: Tweet | null;
@@ -77,14 +78,14 @@ export const replyReducer = createReducer(
     ...state,
     content: {
       ...state.content,
-      parents: state.content.parents
+      parents: state.content.parents?.length
         ? (mapToggleLike(_id, likeOrDislike, state.content.parents) as Reply[])
         : null,
       reply:
         state.content.reply?._id === _id
           ? (toggleLike(state.content.reply, likeOrDislike) as Reply)
-          : null,
-      children: state.content.children
+          : state.content.reply,
+      children: state.content.children?.length
         ? (mapToggleLike(_id, likeOrDislike, state.content.children) as Reply[])
         : null,
     },
@@ -117,17 +118,55 @@ export const replyReducer = createReducer(
     ...state,
     content: {
       ...state.content,
-      parents: state.content.parents
+      parents: state.content.parents?.length
         ? (mapToggleRetweet(state.content.parents, tweet) as Reply[])
         : null,
       reply:
         state.content.reply &&
         state.content.reply._id === tweet.retweet.original?._id
           ? (toggleRetweet(state.content.reply) as Reply)
-          : null,
-      children: state.content.children
+          : state.content.reply,
+      children: state.content.children?.length
         ? (mapToggleRetweet(state.content.children, tweet) as Reply[])
         : null,
     },
-  }))
+  })),
+  on(replyActions.postReplyToReplySuccess, (state, { reply }) => {
+    if (reply.parent === state.content.reply?._id) {
+      return {
+        ...state,
+        content: {
+          ...state.content,
+          reply: incRepliesCount(state.content.reply) as Reply,
+          children: state.content.children
+            ? [reply, ...state.content.children]
+            : state.content.children,
+        },
+      };
+    }
+    return {
+      ...state,
+      content: {
+        ...state.content,
+        parents: state.content.parents
+          ? (mapIncRepliesCount(state.content.parents, reply.parent) as Reply[])
+          : state.content.parents,
+        children: state.content.children
+          ? (mapIncRepliesCount(
+              state.content.children,
+              reply.parent
+            ) as Reply[])
+          : state.content.children,
+      },
+    };
+  }),
+  on(
+    replyActions.postReplyToReplyFailure,
+    (state, { error, validationErrors }) => ({
+      ...state,
+      error: error ? error : null,
+      validationErrors: validationErrors ? validationErrors : null,
+      status: 'error' as const,
+    })
+  )
 );

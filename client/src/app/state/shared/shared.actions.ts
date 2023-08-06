@@ -8,6 +8,12 @@ export enum sharedContext {
   Modal = 'modal',
 }
 
+export type contextSingle = sharedContext.Single;
+export type contextReply = sharedContext.Reply;
+export type contextTimeline = sharedContext.Timeline;
+export type contextProfile = sharedContext.Profile;
+export type contextModal = sharedContext.Modal;
+
 export const postTweet = createAction(
   '[Shared] Post Tweet',
   props<{ content: string; context: sharedContext }>()

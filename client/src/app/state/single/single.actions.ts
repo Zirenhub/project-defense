@@ -1,6 +1,6 @@
 import { ValidationErrors } from '@angular/forms';
 import { createAction, props } from '@ngrx/store';
-import { Reply, ReplyHierarchy } from 'src/app/types/Reply';
+import { Reply, ReplyHierarchy, ReplyStrParent } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 
 export const retweetTweetSuccess = createAction(
@@ -30,6 +30,16 @@ export const postReplySuccess = createAction(
 
 export const postReplyFailure = createAction(
   '[Single] Post Reply Failure',
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
+);
+
+export const postReplyToReplySuccess = createAction(
+  '[Single] Post Reply to Reply Success',
+  props<{ reply: ReplyStrParent }>()
+);
+
+export const postReplyToReplyFailure = createAction(
+  '[Single] Post Reply to Reply Failure',
   props<{ error?: string; validationErrors?: ValidationErrors }>()
 );
 

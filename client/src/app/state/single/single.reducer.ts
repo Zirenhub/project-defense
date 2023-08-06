@@ -5,6 +5,7 @@ import { Tweet } from 'src/app/types/Tweet';
 import * as singleActions from './single.actions';
 import { mapToggleLike, toggleLike } from '../shared/toggleLike';
 import { mapToggleRetweet, toggleRetweet } from '../shared/toggleRetweet';
+import { mapIncRepliesCount } from '../shared/toggleReply';
 
 export interface Single {
   tweet: Tweet | null;
@@ -104,5 +105,58 @@ export const singleReducer = createReducer(
         : null,
     },
     status: 'success' as const,
-  }))
+  })),
+  on(
+    singleActions.retweetReplyFailure,
+    (state, { error, validationErrors }) => ({
+      ...state,
+      error: error ? error : null,
+      validationErrors: validationErrors ? validationErrors : null,
+      status: 'error' as const,
+    })
+  ),
+  on(singleActions.postReplySuccess, (state, { reply }) => ({
+    ...state,
+    content: {
+      ...state.content,
+      tweet: state.content.tweet
+        ? {
+            ...state.content.tweet,
+            repliesCount: state.content.tweet.repliesCount + 1,
+          }
+        : state.content.tweet,
+      replies: state.content.replies
+        ? [reply, ...state.content.replies]
+        : [reply],
+    },
+    status: 'success' as const,
+  })),
+  on(singleActions.postReplyFailure, (state, { error, validationErrors }) => ({
+    ...state,
+    error: error ? error : null,
+    validationErrors: validationErrors ? validationErrors : null,
+    status: 'error' as const,
+  })),
+  on(singleActions.postReplyToReplySuccess, (state, { reply }) => ({
+    ...state,
+    content: {
+      ...state.content,
+      replies: state.content.replies
+        ? (mapIncRepliesCount(
+            state.content.replies,
+            reply.parent
+          ) as Reply[])
+        : state.content.replies,
+    },
+    status: 'success' as const,
+  })),
+  on(
+    singleActions.postReplyToReplyFailure,
+    (state, { error, validationErrors }) => ({
+      ...state,
+      error: error ? error : null,
+      validationErrors: validationErrors ? validationErrors : null,
+      status: 'error' as const,
+    })
+  )
 );

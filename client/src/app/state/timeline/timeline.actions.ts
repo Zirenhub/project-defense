@@ -1,5 +1,6 @@
 import { ValidationErrors } from '@angular/forms';
 import { createAction, props } from '@ngrx/store';
+import { Reply } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 
 export const postTweetSuccess = createAction(
@@ -9,6 +10,16 @@ export const postTweetSuccess = createAction(
 
 export const postTweetFailure = createAction(
   '[Timeline] Post Tweet Failure',
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
+);
+
+export const postReplySuccess = createAction(
+  '[Timeline] Post Reply Success',
+  props<{ reply: Reply }>()
+);
+
+export const postReplyFailure = createAction(
+  '[Timeline] Post Reply Failure',
   props<{ error?: string; validationErrors?: ValidationErrors }>()
 );
 

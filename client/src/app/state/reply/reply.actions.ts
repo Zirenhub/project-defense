@@ -1,6 +1,6 @@
 import { ValidationErrors } from '@angular/forms';
 import { createAction, props } from '@ngrx/store';
-import { FullReply, Reply } from 'src/app/types/Reply';
+import { FullReply, Reply, ReplyStrParent } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 
 export const retweetTweetSuccess = createAction(
@@ -50,7 +50,7 @@ export const postReplyFailure = createAction(
 
 export const postReplyToReplySuccess = createAction(
   '[Reply] Post Reply to Reply Success',
-  props<{ reply: Reply }>()
+  props<{ reply: ReplyStrParent }>()
 );
 
 export const postReplyToReplyFailure = createAction(

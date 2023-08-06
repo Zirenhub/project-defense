@@ -2,8 +2,9 @@ import { ValidationErrors } from '@angular/forms';
 import { createReducer, on } from '@ngrx/store';
 import { Tweet } from 'src/app/types/Tweet';
 import * as timelineActions from './timeline.actions';
-import { mapToggleLike, toggleLike } from '../shared/toggleLike';
+import { mapToggleLike } from '../shared/toggleLike';
 import { mapToggleRetweet } from '../shared/toggleRetweet';
+import { mapIncRepliesCount } from '../shared/toggleReply';
 
 export interface Timeline {
   tweets: Tweet[] | null;
@@ -72,12 +73,30 @@ export const timelineReducer = createReducer(
       status: 'error' as const,
     })
   ),
+  on(timelineActions.postReplySuccess, (state, { reply }) => ({
+    ...state,
+    content: {
+      tweets: state.content.tweets
+        ? (mapIncRepliesCount(state.content.tweets, reply.tweet._id) as Tweet[])
+        : state.content.tweets,
+    },
+    status: 'success' as const,
+  })),
+  on(
+    timelineActions.postReplyFailure,
+    (state, { error, validationErrors }) => ({
+      ...state,
+      error: error ? error : null,
+      validationErrors: validationErrors ? validationErrors : null,
+      status: 'error' as const,
+    })
+  ),
   on(timelineActions.retweetTweetSuccess, (state, { tweet }) => ({
     ...state,
     content: {
       tweets: state.content.tweets
-        ? ([tweet, mapToggleRetweet(state.content.tweets, tweet)] as Tweet[])
-        : [tweet],
+        ? ([tweet, ...mapToggleRetweet(state.content.tweets, tweet)] as Tweet[])
+        : state.content.tweets,
     },
     status: 'success' as const,
   })),

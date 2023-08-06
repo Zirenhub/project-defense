@@ -1,3 +1,4 @@
+import { ValidationErrors } from '../../types/Api';
 import { createAction, props } from '@ngrx/store';
 import { Reply } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
@@ -42,11 +43,41 @@ export const profileTweetsFailure = createAction(
   props<{ error: string }>()
 );
 
-export const profileLikeTweetSuccess = createAction(
+export const likeTweetSuccess = createAction(
   '[Profile] Profile Like Tweet Success',
   props<{ _id: string; likeOrDislike: 'like' | 'dislike' }>()
 );
-export const profileLikeTweetFailure = createAction(
+export const likeTweetFailure = createAction(
   '[Profile] Profile Like Tweet Failure',
   props<{ error: string }>()
+);
+
+export const retweetTweetSuccess = createAction(
+  '[Profile] Retweet Tweet Success',
+  props<{ tweet: Tweet }>()
+);
+
+export const retweetTweetFailure = createAction(
+  '[Profile] Retweet Tweet Failure',
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
+);
+
+export const retweetReplySuccess = createAction(
+  '[Profile] Retweet Reply Success',
+  props<{ tweet: Tweet }>()
+);
+
+export const retweetReplyFailure = createAction(
+  '[Profile] Retweet Reply Failure',
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
+);
+
+export const postReplySuccess = createAction(
+  '[Profile] Post Reply Success',
+  props<{ reply: Reply }>()
+);
+
+export const postReplyFailure = createAction(
+  '[Profile] Post Reply Failure',
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
 );
