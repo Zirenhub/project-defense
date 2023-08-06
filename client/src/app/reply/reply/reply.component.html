@@ -8,46 +8,57 @@
   <p class="font-bold text-xl">Tweet</p>
 </div>
 
-<ng-container *ngIf="tweet">
+<!-- main tweet -->
+<ng-container *ngIf="tweet$ | async as tweet">
   <app-tweet-container
-    [tweet]="tweet"
-    (like)="like($event, 'tweet')"
-    (reply)="commentReply($event, 'tweet')"
     (click)="navigate(tweet._id, 'tweet')"
-    (retweet)="handleRetweet($event, 'tweet')"
+    [tweet]="tweet"
+    (like)="handleLikeTweet(tweet._id)"
+    (reply)="handleOpenReplyToTweetModal(tweet)"
+    (retweet)="handleOpenRetweetModal(tweet)"
   />
 </ng-container>
 
-<div *ngIf="parents" class="flex flex-col">
-  <ng-container *ngFor="let reply of parents">
-    <app-reply-container
-      [comment]="reply"
-      (like)="like($event, 'reply')"
-      (reply)="commentReply($event, 'reply')"
-      (click)="navigate(reply._id, 'reply')"
-      (retweet)="handleRetweet($event, 'reply')"
-    />
-  </ng-container>
-</div>
+<!-- parent replies of the currently open reply -->
+<ng-container *ngIf="parents$ | async as parents">
+  <div class="flex flex-col">
+    <ng-container *ngFor="let reply of parents">
+      <app-reply-container
+        (click)="navigate(reply._id, 'reply')"
+        [comment]="reply"
+        (like)="handleLikeReply(reply._id)"
+        (reply)="handleOpenReplytoReplyModal(reply)"
+        (retweet)="handleOpenRetweetModal(reply)"
+      />
+    </ng-container>
+  </div>
+</ng-container>
 
-<app-open-tweet-container
-  [content]="reply"
-  (like)="like($event, 'reply')"
-  (reply)="handleReply($event)"
-  (retweet)="handleRetweet($event, 'reply')"
-/>
+<!-- currently open reply -->
+<ng-container *ngIf="reply$ | async as reply">
+  <app-open-tweet-container
+    [content]="reply"
+    (like)="handleLikeReply(reply._id)"
+    (reply)="handleReply($event)"
+    (retweet)="handleOpenRetweetModal(reply)"
+  />
+</ng-container>
 
-<div *ngIf="children" class="flex flex-col">
-  <ng-container *ngFor="let reply of children">
-    <app-reply-container
-      [comment]="reply"
-      (like)="like($event, 'reply')"
-      (reply)="commentReply($event, 'reply')"
-      (click)="navigate(reply._id, 'reply')"
-      (retweet)="handleRetweet($event, 'reply')"
-    />
-  </ng-container>
-</div>
+<!-- children replies of the currently open reply -->
+
+<ng-container *ngIf="children$ | async as children">
+  <div class="flex flex-col">
+    <ng-container *ngFor="let reply of children">
+      <app-reply-container
+        (click)="navigate(reply._id, 'reply')"
+        [comment]="reply"
+        (like)="handleLikeReply(reply._id)"
+        (reply)="handleOpenReplytoReplyModal(reply)"
+        (retweet)="handleOpenRetweetModal(reply)"
+      />
+    </ng-container>
+  </div>
+</ng-container>
 
 <ng-template #loading>
   <p class="text-center">Loading...</p>

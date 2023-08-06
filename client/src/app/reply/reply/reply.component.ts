@@ -4,18 +4,12 @@ import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { Location } from '@angular/common';
 import { AppState } from 'src/app/state/app.state';
-import {
-  getReply,
-  likeReply,
-  likeTweet,
-  openReplyModal,
-  openRetweetModal,
-  postReplyToReply,
-} from 'src/app/state/tweets/tweet.actions';
-import { IReply } from 'src/app/state/tweets/tweet.reducer';
-import { selectTweetReply } from 'src/app/state/tweets/tweet.selectors';
-import { Reply } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
+import { Reply } from 'src/app/types/Reply';
+import * as replySelectors from 'src/app/state/reply/reply.selectors';
+import * as sharedActions from 'src/app/state/shared/shared.actions';
+import * as modalActions from 'src/app/state/modal/modal.actions';
+import { getReply } from 'src/app/state/reply/reply.actions';
 
 @Component({
   selector: 'app-reply',
@@ -23,15 +17,14 @@ import { Tweet } from 'src/app/types/Tweet';
 })
 export class ReplyComponent implements OnInit, OnDestroy {
   private routeSub?: Subscription;
+
   replyId?: string;
+  context: sharedActions.sharedContext = sharedActions.sharedContext.Reply;
 
-  fullReply$: Observable<IReply | null>;
-  replySub: Subscription;
-
-  tweet?: Tweet;
-  parents?: Reply[];
-  reply?: Reply;
-  children?: Reply[];
+  tweet$: Observable<Tweet | null>;
+  parents$: Observable<Reply[] | null>;
+  reply$: Observable<Reply | null>;
+  children$: Observable<Reply[] | null>;
 
   constructor(
     private route: ActivatedRoute,
@@ -39,16 +32,10 @@ export class ReplyComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private location: Location
   ) {
-    this.fullReply$ = this.store.select(selectTweetReply);
-
-    this.replySub = this.fullReply$.subscribe((fullReply) => {
-      if (fullReply) {
-        this.tweet = fullReply.tweet;
-        this.parents = fullReply.parents;
-        this.reply = fullReply.reply;
-        this.children = fullReply.children;
-      }
-    });
+    this.tweet$ = this.store.select(replySelectors.selectReplyTweet);
+    this.parents$ = this.store.select(replySelectors.selectReplyParents);
+    this.reply$ = this.store.select(replySelectors.selectReplyReply);
+    this.children$ = this.store.select(replySelectors.selectReplyChildren);
   }
 
   navigate(id: string, type: 'tweet' | 'reply') {
@@ -62,25 +49,40 @@ export class ReplyComponent implements OnInit, OnDestroy {
   handleReply(reply: string) {
     if (reply && this.replyId) {
       this.store.dispatch(
-        postReplyToReply({ id: this.replyId, content: reply })
+        sharedActions.postReplyToReply({
+          id: this.replyId,
+          content: reply,
+          context: this.context,
+        })
       );
     }
   }
 
-  handleRetweet(id: string, context: 'tweet' | 'reply') {
-    this.store.dispatch(openRetweetModal({ id, context }));
+  handleOpenRetweetModal(content: Tweet | Reply) {
+    this.store.dispatch(
+      modalActions.openRetweetModal({ content, context: this.context })
+    );
   }
 
-  commentReply(id: string, context: 'tweet' | 'reply') {
-    this.store.dispatch(openReplyModal({ id, context }));
+  handleOpenReplytoReplyModal(reply: Reply) {
+    this.store.dispatch(
+      modalActions.openReplyingToReplyModal({ reply, context: this.context })
+    );
   }
 
-  like(id: string, type: 'tweet' | 'reply') {
-    if (type === 'tweet') {
-      this.store.dispatch(likeTweet({ id, isOnProfile: false }));
-    } else {
-      this.store.dispatch(likeReply({ id, isOnProfile: false }));
-    }
+  // FIX THIS, ADD A LISTENER ON REDUCER !!!
+  handleOpenReplyToTweetModal(tweet: Tweet) {
+    this.store.dispatch(
+      modalActions.openReplyingToTweetModal({ tweet, context: this.context })
+    );
+  }
+
+  handleLikeTweet(id: string) {
+    this.store.dispatch(sharedActions.likeTweet({ id, context: this.context }));
+  }
+
+  handleLikeReply(id: string) {
+    this.store.dispatch(sharedActions.likeReply({ id, context: this.context }));
   }
 
   ngOnInit(): void {
@@ -94,6 +96,5 @@ export class ReplyComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
-    this.replySub.unsubscribe();
   }
 }
