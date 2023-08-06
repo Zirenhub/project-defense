@@ -1,5 +1,5 @@
 import { JWTUser } from './Auth';
-import { FullReply, Reply, ReplyHierarchy } from './Reply';
+import { FullReply, Reply, ReplyHierarchy, ReplyStrParent } from './Reply';
 import { ReplyRetweet, Tweet } from './Tweet';
 import { User } from './User';
 
@@ -37,7 +37,7 @@ export interface PostReplyRes extends Api {
 }
 
 export interface PostReplyToReplyRes extends Api {
-  data: Reply;
+  data: ReplyStrParent;
 }
 
 export interface GetReplyRes extends Api {

@@ -22,6 +22,10 @@ export interface ReplyWithParent extends Reply {
   parent: Reply;
 }
 
+export interface ReplyStrParent extends Reply {
+  parent: string;
+}
+
 export interface ReplyHierarchy {
   tweet: Tweet;
   replies: Reply[];
