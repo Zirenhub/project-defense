@@ -3,28 +3,13 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import * as sharedActions from './shared.actions';
 import * as singleActions from '../single/single.actions';
-import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
+import * as timelineActions from '../timeline/timeline.actions';
+import * as profileActions from '../profile/profile.actions';
+import * as replyActions from '../reply/reply.actions';
+import { catchError, map, mergeMap, share, switchMap } from 'rxjs/operators';
 import { SharedService } from './shared.service';
 import { getErrors } from '../getErrors';
 import { Router } from '@angular/router';
-import { profileLikeTweetSuccess } from '../profile/profile.actions';
-
-function getActionsForPostTweet<T extends sharedActions.sharedContext>(
-  context: T
-) {
-  switch (context) {
-    case sharedActions.sharedContext.Single:
-      return {
-        success: singleActions.postTweetSuccess,
-        failure: singleActions.postTweetFailure,
-      };
-    default:
-      return {
-        success: singleActions.postTweetSuccess,
-        failure: singleActions.postTweetFailure,
-      };
-  }
-}
 
 @Injectable()
 export class SharedEffects {
@@ -33,6 +18,23 @@ export class SharedEffects {
     private sharedService: SharedService,
     private router: Router
   ) {}
+
+  private getActionsForPostTweet<T extends sharedActions.sharedContext>(
+    context: T
+  ) {
+    if (context === sharedActions.sharedContext.Timeline) {
+      return {
+        success: timelineActions.postTweetSuccess,
+        failure: timelineActions.postTweetFailure,
+      };
+    }
+    // modal also
+
+    return {
+      success: timelineActions.postTweetSuccess,
+      failure: timelineActions.postTweetFailure,
+    };
+  }
 
   postTweet$ = createEffect(() =>
     this.actions$.pipe(
@@ -44,60 +46,145 @@ export class SharedEffects {
         )
       ),
       map((response) => {
-        const { action } = response;
-        const actionsForContext = getActionsForPostTweet(action.context);
-        if ('res' in response) {
-          const { res } = response;
-          const successAction = actionsForContext.success;
-          return successAction({ tweet: res.data });
+        if ('error' in response) {
+          const errorAction = this.getActionsForPostTweet(
+            response.action.context
+          ).failure;
+          return errorAction({ error: response.error.error });
+        } else {
+          const successAction = this.getActionsForPostTweet(
+            response.action.context
+          ).success;
+          return successAction({ tweet: response.res.data });
         }
-        const { error } = response;
-        const errorAction = actionsForContext.failure;
-        return errorAction(getErrors(error.error || 'Unknown'));
       })
     )
   );
 
+  private getActionsForRetweetTweet<T extends sharedActions.sharedContext>(
+    context: T
+  ) {
+    if (context === sharedActions.sharedContext.Timeline) {
+      return {
+        success: timelineActions.retweetTweetSuccess,
+        failure: timelineActions.retweetTweetFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Single) {
+      return {
+        success: singleActions.retweetTweetSuccess,
+        failure: singleActions.retweetTweetFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Reply) {
+      return {
+        success: replyActions.retweetTweetSuccess,
+        failure: replyActions.retweetTweetFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Profile) {
+      return {
+        success: profileActions.retweetTweetSuccess,
+        failure: profileActions.retweetTweetFailure,
+      };
+    }
+
+    return {
+      success: timelineActions.retweetTweetSuccess,
+      failure: timelineActions.retweetTweetFailure,
+    };
+  }
+
   retweetTweet$ = createEffect(() =>
     this.actions$.pipe(
       ofType(sharedActions.retweetTweet),
-      mergeMap((action) =>
+      switchMap((action) =>
         this.sharedService.retweetTweet(action.id, action.content).pipe(
-          map((res) => sharedActions.retweetTweetSuccess({ tweet: res.data })),
-          catchError((error) =>
-            of(sharedActions.retweetTweetFailure(getErrors(error)))
-          )
+          map((res) => ({ res, action })),
+          catchError((error) => of({ error, action }))
         )
-      )
+      ),
+      map((response) => {
+        if ('error' in response) {
+          const errorAction = this.getActionsForRetweetTweet(
+            response.action.context
+          ).failure;
+          return errorAction({ error: response.error.error });
+        } else {
+          const successAction = this.getActionsForRetweetTweet(
+            response.action.context
+          ).success;
+          return successAction({ tweet: response.res.data });
+        }
+      })
     )
   );
+
+  private getActionsForRetweetReply<T extends sharedActions.sharedContext>(
+    context: T
+  ) {
+    if (context === sharedActions.sharedContext.Single) {
+      return {
+        success: singleActions.retweetReplySuccess,
+        failure: singleActions.retweetTweetFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Reply) {
+      return {
+        success: replyActions.retweetReplySuccess,
+        failure: replyActions.retweetReplyFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Profile) {
+      return {
+        success: profileActions.retweetReplySuccess,
+        failure: profileActions.retweetReplyFailure,
+      };
+    }
+
+    return {
+      success: profileActions.retweetReplySuccess,
+      failure: profileActions.retweetReplyFailure,
+    };
+  }
 
   retweetReply$ = createEffect(() =>
     this.actions$.pipe(
       ofType(sharedActions.retweetReply),
-      mergeMap((action) =>
+      switchMap((action) =>
         this.sharedService.retweetReply(action.id, action.content).pipe(
-          map((res) => sharedActions.retweetReplySuccess({ tweet: res.data })),
-          catchError((error) =>
-            of(sharedActions.retweetReplyFailure(getErrors(error)))
-          )
+          map((res) => ({ res, action })),
+          catchError((error) => of({ error, action }))
         )
-      )
+      ),
+      map((response) => {
+        if ('error' in response) {
+          const errorAction = this.getActionsForRetweetReply(
+            response.action.context
+          ).failure;
+          return errorAction({ error: response.error.error });
+        } else {
+          const successAction = this.getActionsForRetweetReply(
+            response.action.context
+          ).success;
+          return successAction({ tweet: response.res.data });
+        }
+      })
     )
   );
 
   getTimeline$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(sharedActions.getTimeline),
+      ofType(timelineActions.getTimeline),
       // switchMap operator cancels the previous observable (if there is any) and switches to a new one
       switchMap(() =>
         this.sharedService.getTimeline().pipe(
           map((res) =>
-            sharedActions.getTimelineSuccess({ timeline: res.data })
+            timelineActions.getTimelineSuccess({ timeline: res.data })
           ),
           catchError((error) =>
             of(
-              sharedActions.getTimelineFailure({
+              timelineActions.getTimelineFailure({
                 error: error.error.message || 'Unknown',
               })
             )
@@ -109,13 +196,13 @@ export class SharedEffects {
 
   getTweet$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(sharedActions.getTweet),
+      ofType(singleActions.singleGetTweet),
       mergeMap((action) =>
         this.sharedService.getTweet(action.id).pipe(
-          map((res) => sharedActions.getTweetSuccess(res.data)),
+          map((res) => singleActions.getTweetSuccess(res.data)),
           catchError((error) =>
             of(
-              sharedActions.getTweetFailure({
+              singleActions.getTweetFailure({
                 error: error.error.message || 'Unknown',
               })
             )
@@ -127,13 +214,13 @@ export class SharedEffects {
 
   getReply$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(sharedActions.getReply),
+      ofType(replyActions.getReply),
       mergeMap((action) =>
         this.sharedService.getReply(action.id).pipe(
-          map((res) => sharedActions.getReplySuccess(res.data)),
+          map((res) => replyActions.getReplySuccess(res.data)),
           catchError((error) =>
             of(
-              sharedActions.getReplyFailure({
+              replyActions.getReplyFailure({
                 error: error.error.message || 'Unknown',
               })
             )
@@ -142,74 +229,228 @@ export class SharedEffects {
       )
     )
   );
+
+  private getActionsForLikeTweet<T extends sharedActions.sharedContext>(
+    context: T
+  ) {
+    if (context === sharedActions.sharedContext.Timeline) {
+      return {
+        success: timelineActions.likeTweetSuccess,
+        failure: timelineActions.likeTweetFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Single) {
+      return {
+        success: singleActions.likeTweetSuccess,
+        failure: singleActions.likeTweetFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Reply) {
+      return {
+        success: replyActions.likeTweetSuccess,
+        failure: replyActions.likeTweetFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Profile) {
+      return {
+        success: profileActions.likeTweetSuccess,
+        failure: profileActions.likeTweetFailure,
+      };
+    }
+
+    return {
+      success: profileActions.likeTweetSuccess,
+      failure: profileActions.likeTweetFailure,
+    };
+  }
 
   likeTweet$ = createEffect(() =>
     this.actions$.pipe(
       ofType(sharedActions.likeTweet),
-      mergeMap((action) =>
+      switchMap((action) =>
         this.sharedService.likeTweet(action.id).pipe(
-          map((res) =>
-            action.isOnProfile
-              ? profileLikeTweetSuccess(res.data)
-              : sharedActions.likeTweetSuccess(res.data)
-          ),
-          catchError((error) =>
-            of(
-              sharedActions.likeTweetFailure({
-                error: error.error.message || 'Unknown',
-              })
-            )
-          )
+          map((res) => ({ res, action })),
+          catchError((error) => of({ error, action }))
         )
-      )
+      ),
+      map((response) => {
+        if ('error' in response) {
+          const errorAction = this.getActionsForLikeTweet(
+            response.action.context
+          ).failure;
+          return errorAction({ error: response.error.error });
+        } else {
+          const successAction = this.getActionsForLikeTweet(
+            response.action.context
+          ).success;
+          return successAction({
+            _id: response.res.data._id,
+            likeOrDislike: response.res.data.likeOrDislike,
+          });
+        }
+      })
     )
   );
+
+  private getActionsForLikeReply<T extends sharedActions.sharedContext>(
+    context: T
+  ) {
+    if (context === sharedActions.sharedContext.Single) {
+      return {
+        success: singleActions.likeReplySuccess,
+        failure: singleActions.likeReplyFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Reply) {
+      return {
+        success: replyActions.likeReplySuccess,
+        failure: replyActions.likeReplyFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Profile) {
+      return {
+        success: profileActions.likeTweetSuccess,
+        failure: profileActions.likeTweetFailure,
+      };
+    }
+
+    return {
+      success: profileActions.likeTweetSuccess,
+      failure: profileActions.likeTweetFailure,
+    };
+  }
 
   likeReply$ = createEffect(() =>
     this.actions$.pipe(
       ofType(sharedActions.likeReply),
-      mergeMap((action) =>
+      switchMap((action) =>
         this.sharedService.likeReply(action.id).pipe(
-          map((res) => sharedActions.likeReplySuccess(res.data)),
-          catchError((error) =>
-            of(
-              sharedActions.likeReplyFailure({
-                error: error.error.message || 'Unknown',
-              })
-            )
-          )
+          map((res) => ({ res, action })),
+          catchError((error) => of({ error, action }))
         )
-      )
+      ),
+      map((response) => {
+        if ('error' in response) {
+          const errorAction = this.getActionsForLikeReply(
+            response.action.context
+          ).failure;
+          return errorAction({ error: response.error.error });
+        } else {
+          const successAction = this.getActionsForLikeReply(
+            response.action.context
+          ).success;
+          return successAction({
+            _id: response.res.data._id,
+            likeOrDislike: response.res.data.likeOrDislike,
+          });
+        }
+      })
     )
   );
+
+  private getActionsForPostReply<T extends sharedActions.sharedContext>(
+    context: T
+  ) {
+    if (context === sharedActions.sharedContext.Timeline) {
+      return {
+        success: timelineActions.postReplySuccess,
+        failure: timelineActions.postReplyFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Single) {
+      return {
+        success: singleActions.postReplySuccess,
+        failure: singleActions.postReplyFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Reply) {
+      return {
+        success: replyActions.postReplySuccess,
+        failure: replyActions.postReplyFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Profile) {
+      return {
+        success: profileActions.postReplySuccess,
+        failure: profileActions.postReplyFailure,
+      };
+    }
+
+    return {
+      success: replyActions.postReplySuccess,
+      failure: replyActions.postReplyFailure,
+    };
+  }
 
   postReply$ = createEffect(() =>
     this.actions$.pipe(
       ofType(sharedActions.postReply),
-      mergeMap((action) =>
+      switchMap((action) =>
         this.sharedService.postReply(action.id, action.content).pipe(
-          map((res) => sharedActions.postReplySuccess({ reply: res.data })),
-          catchError((error) =>
-            of(sharedActions.postReplyFailure(getErrors(error)))
-          )
+          map((res) => ({ res, action })),
+          catchError((error) => of({ error, action }))
         )
-      )
+      ),
+      map((response) => {
+        if ('error' in response) {
+          const errorAction = this.getActionsForPostReply(
+            response.action.context
+          ).failure;
+          return errorAction({ error: response.error.error });
+        } else {
+          const successAction = this.getActionsForPostReply(
+            response.action.context
+          ).success;
+          return successAction({ reply: response.res.data });
+        }
+      })
     )
   );
+
+  private getActionsForPostReplyToReply<T extends sharedActions.sharedContext>(
+    context: T
+  ) {
+    if (context === sharedActions.sharedContext.Reply) {
+      return {
+        success: replyActions.postReplyToReplySuccess,
+        failure: replyActions.postReplyToReplyFailure,
+      };
+    }
+    if (context === sharedActions.sharedContext.Single) {
+      return {
+        success: singleActions.postReplyToReplySuccess,
+        failure: singleActions.postReplyToReplyFailure,
+      };
+    }
+
+    return {
+      success: replyActions.postReplyToReplySuccess,
+      failure: replyActions.postReplyToReplyFailure,
+    };
+  }
 
   postReplyToReply$ = createEffect(() =>
     this.actions$.pipe(
       ofType(sharedActions.postReplyToReply),
-      mergeMap((action) =>
+      switchMap((action) =>
         this.sharedService.postReplyToReply(action.id, action.content).pipe(
-          map((res) =>
-            sharedActions.postReplyToReplySuccess({ reply: res.data })
-          ),
-          catchError((error) =>
-            of(sharedActions.postReplyFailure(getErrors(error)))
-          )
+          map((res) => ({ res, action })),
+          catchError((error) => of({ error, action }))
         )
-      )
+      ),
+      map((response) => {
+        if ('error' in response) {
+          const errorAction = this.getActionsForPostReplyToReply(
+            response.action.context
+          ).failure;
+          return errorAction({ error: response.error.error });
+        } else {
+          const successAction = this.getActionsForPostReplyToReply(
+            response.action.context
+          ).success;
+          return successAction({ reply: response.res.data });
+        }
+      })
     )
   );
 }
