@@ -3,11 +3,12 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/state/app.state';
 import {
-  likeTweet,
-  openReplyModal,
+  openReplyingToTweetModal,
   openRetweetModal,
-} from 'src/app/state/tweets/tweet.actions';
+} from 'src/app/state/modal/modal.actions';
+import { likeTweet } from 'src/app/state/shared/shared.actions';
 import { Tweet } from 'src/app/types/Tweet';
+import { sharedContext } from 'src/app/state/shared/shared.actions';
 
 @Component({
   selector: 'app-tweet-feed',
@@ -15,27 +16,33 @@ import { Tweet } from 'src/app/types/Tweet';
 })
 export class TweetFeedComponent {
   @Input() tweets: Tweet[] = [];
+  @Input() context?: sharedContext;
 
   constructor(private store: Store<AppState>, private router: Router) {}
 
   handleOpenReplyModal(id: string) {
     const tweet = this.tweets.find((x) => x._id === id);
-    if (tweet) {
-      this.store.dispatch(openReplyModal({ id: tweet._id, context: 'tweet' }));
+    if (tweet && this.context) {
+      this.store.dispatch(
+        openReplyingToTweetModal({ tweet: tweet, context: this.context })
+      );
     }
   }
 
   handleOpenRetweetModal(id: string) {
     const tweet = this.tweets.find((x) => x._id === id);
-    if (tweet) {
+    if (tweet && this.context) {
       this.store.dispatch(
-        openRetweetModal({ id: tweet._id, context: 'tweet' })
+        openRetweetModal({ content: tweet, context: this.context })
       );
     }
   }
 
   like(id: string) {
-    this.store.dispatch(likeTweet({ id, isOnProfile: false }));
+    if (this.context) {
+      console.log(this.context);
+      this.store.dispatch(likeTweet({ id, context: this.context }));
+    }
   }
 
   openTweet(id: string) {
