@@ -4,7 +4,7 @@ import { Tweet } from 'src/app/types/Tweet';
 import * as timelineActions from './timeline.actions';
 import { mapToggleLike } from '../shared/toggleLike';
 import { mapToggleRetweet } from '../shared/toggleRetweet';
-import { mapIncRepliesCount } from '../shared/toggleReply';
+import { mapIncRepliesCount } from '../shared/incReplies';
 
 export interface Timeline {
   tweets: Tweet[] | null;

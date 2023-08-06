@@ -5,7 +5,7 @@ import { Tweet } from 'src/app/types/Tweet';
 import * as replyActions from './reply.actions';
 import { mapToggleLike, toggleLike } from '../shared/toggleLike';
 import { mapToggleRetweet, toggleRetweet } from '../shared/toggleRetweet';
-import { incRepliesCount, mapIncRepliesCount } from '../shared/toggleReply';
+import { incRepliesCount, mapIncRepliesCount } from '../shared/incReplies';
 
 export interface IReply {
   tweet: Tweet | null;

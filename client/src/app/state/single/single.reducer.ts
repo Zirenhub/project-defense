@@ -5,7 +5,7 @@ import { Tweet } from 'src/app/types/Tweet';
 import * as singleActions from './single.actions';
 import { mapToggleLike, toggleLike } from '../shared/toggleLike';
 import { mapToggleRetweet, toggleRetweet } from '../shared/toggleRetweet';
-import { mapIncRepliesCount } from '../shared/toggleReply';
+import { mapIncRepliesCount } from '../shared/incReplies';
 
 export interface Single {
   tweet: Tweet | null;
@@ -142,10 +142,7 @@ export const singleReducer = createReducer(
     content: {
       ...state.content,
       replies: state.content.replies
-        ? (mapIncRepliesCount(
-            state.content.replies,
-            reply.parent
-          ) as Reply[])
+        ? (mapIncRepliesCount(state.content.replies, reply.parent) as Reply[])
         : state.content.replies,
     },
     status: 'success' as const,

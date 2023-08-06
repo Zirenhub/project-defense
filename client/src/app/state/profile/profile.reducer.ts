@@ -5,7 +5,7 @@ import * as profileActions from './profile.actions';
 import { User } from 'src/app/types/User';
 import { mapToggleLike } from '../shared/toggleLike';
 import { ValidationErrors } from 'src/app/types/Api';
-import { mapIncRepliesCount } from '../shared/toggleReply';
+import { mapIncRepliesCount } from '../shared/incReplies';
 
 export interface ProfileState {
   profile: User | null;
