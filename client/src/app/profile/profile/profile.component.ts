@@ -4,23 +4,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { AppState } from 'src/app/state/app.state';
-import {
-  profile,
-  profileLikes,
-  profileTweets,
-} from 'src/app/state/profile/profile.actions';
-import {
-  selectGetProfile,
-  selectProfileLikes,
-  selectProfileTweets,
-} from 'src/app/state/profile/profile.selectors';
-import { likeReply, likeTweet } from 'src/app/state/tweets/tweet.actions';
-
+import * as profileActions from 'src/app/state/profile/profile.actions';
+import * as sharedActions from 'src/app/state/shared/shared.actions';
+import * as modalActions from '../../state/modal/modal.actions';
+import * as profileSelectors from 'src/app/state/profile/profile.selectors';
 import { Reply } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 import { User } from 'src/app/types/User';
 
 type Pages = 'Tweets' | 'Replies' | 'Media' | 'Likes';
+type button = { name: Pages; init: () => void };
 
 @Component({
   selector: 'app-profile',
@@ -28,7 +21,9 @@ type Pages = 'Tweets' | 'Replies' | 'Media' | 'Likes';
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   private routeSub?: Subscription;
+
   profileId?: string;
+  context: sharedActions.sharedContext = sharedActions.sharedContext.Profile;
 
   profile$: Observable<User | null>;
   tweets$: Observable<Tweet[]>;
@@ -42,79 +37,89 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private location: Location,
     private router: Router
   ) {
-    this.tweets$ = this.store.select(selectProfileTweets);
-    this.profile$ = this.store.select(selectGetProfile);
-    this.likes$ = this.store.select(selectProfileLikes);
+    this.tweets$ = this.store.select(profileSelectors.selectProfileTweets);
+    this.profile$ = this.store.select(profileSelectors.selectGetProfile);
+    this.likes$ = this.store.select(profileSelectors.selectProfileLikes);
   }
 
   navigateBack() {
     this.location.back();
   }
 
-  navigateToLike(like: Tweet | Reply) {
-    // almost out of time, will have to do for now.
+  navigateToLiked(like: Tweet | Reply) {
     this.router.navigate(['parent' in like ? '/reply' : '/tweet', like._id]);
   }
 
-  buttons: { name: Pages }[] = [
-    { name: 'Tweets' },
-    { name: 'Replies' },
-    { name: 'Media' },
-    { name: 'Likes' },
+  buttons: button[] = [
+    {
+      name: 'Tweets',
+      init: () => {
+        if (this.profileId) {
+          this.store.dispatch(
+            profileActions.profileTweets({ id: this.profileId })
+          );
+        }
+      },
+    },
+    { name: 'Replies', init: () => {} },
+    { name: 'Media', init: () => {} },
+    {
+      name: 'Likes',
+      init: () => {
+        if (this.profileId) {
+          this.store.dispatch(
+            profileActions.profileLikes({ id: this.profileId })
+          );
+        }
+      },
+    },
   ];
 
-  switch(name: Pages) {
-    this.activePage = name;
-    this.handleActivePageChange(name);
-  }
-
-  private handleActivePageChange(newActivePage: Pages) {
-    if (newActivePage === 'Tweets') {
-      this.getProfileTweets();
-    } else if (newActivePage === 'Replies') {
-      // Handle Replies page
-    } else if (newActivePage === 'Media') {
-      // Handle Media page
-    } else if (newActivePage === 'Likes') {
-      this.getProfileLikes();
-    }
+  switch(button: button) {
+    this.activePage = button.name;
+    button.init();
   }
 
   handleLike(like: Tweet | Reply) {
     if ('parent' in like) {
-      this.store.dispatch(likeReply({ id: like._id, isOnProfile: true }));
+      this.store.dispatch(
+        sharedActions.likeReply({ id: like._id, context: this.context })
+      );
     } else {
-      this.store.dispatch(likeTweet({ id: like._id, isOnProfile: true }));
+      this.store.dispatch(
+        sharedActions.likeTweet({ id: like._id, context: this.context })
+      );
     }
   }
+
   handleReply(like: Tweet | Reply) {
-    // this.store.dispatch(
-    //   openReplyModal({
-    //     context: 'parent' in like ? 'reply' : 'tweet',
-    //     id: like._id,
-    //   })
-    // );
+    if ('parent' in like) {
+      this.store.dispatch(
+        modalActions.openReplyingToReplyModal({
+          reply: like,
+          context: this.context,
+        })
+      );
+    } else {
+      this.store.dispatch(
+        modalActions.openReplyingToTweetModal({
+          tweet: like,
+          context: this.context,
+        })
+      );
+    }
   }
   handleRetweet(like: Tweet | Reply) {}
-
-  getProfileTweets() {
-    if (this.profileId) {
-      this.store.dispatch(profileTweets({ id: this.profileId }));
-    }
-  }
-
-  getProfileLikes() {
-    if (this.profileId) {
-      this.store.dispatch(profileLikes({ id: this.profileId }));
-    }
-  }
 
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe((params) => {
       this.profileId = params['id'] as string;
       if (this.profileId) {
-        this.store.dispatch(profile({ id: this.profileId }));
-        this.handleActivePageChange(this.activePage);
+        this.store.dispatch(profileActions.profile({ id: this.profileId }));
+        const init = this.buttons.find((x) => x.name === this.activePage);
+        if (init) {
+          init.init();
+        }
       }
     });
   }

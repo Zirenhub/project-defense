@@ -40,7 +40,7 @@
             ? 'font-bold border-b-4 border-blue-400 grow hover:bg-gray-300 transition-all py-3'
             : 'font-bold text-gray-500 grow hover:bg-gray-300 transition-all py-3'
         "
-        (click)="switch(button.name)"
+        (click)="switch(button)"
       >
         {{ button.name }}
       </button>
@@ -52,7 +52,7 @@
       There is nothing here yet!
     </p>
     <div class="flex flex-col gap-1">
-      <div *ngFor="let tweet of tweets" (click)="navigateToLike(tweet)">
+      <div *ngFor="let tweet of tweets" (click)="navigateToLiked(tweet)">
         <app-tweet-container
           [tweet]="tweet"
           (reply)="handleReply(tweet)"
@@ -67,7 +67,7 @@
     <app-reply-container
       *ngFor="let like of likes"
       [comment]="like"
-      (click)="navigateToLike(like)"
+      (click)="navigateToLiked(like)"
       (like)="handleLike(like)"
       (reply)="handleReply(like)"
       (retweet)="handleRetweet(like)"
