@@ -1,62 +1,36 @@
 <ng-container *ngIf="error || validationErrors">
+  <!-- add remove error to pop up -->
   <app-pop-up
     type="error"
-    (removeErrors)="removeErrors()"
     [content]="error"
     [validationErrors]="validationErrors"
   ></app-pop-up>
 </ng-container>
 
 <div
-  *ngIf="replyingTo$ | async as replyingTo"
+  *ngIf="replyingToTweet$ | async as replyingToTweet"
   class="z-40 flex justify-center items-center absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 bg-gray-300/40 h-full w-full"
 >
-  <div
-    class="flex flex-col gap-3 mb-[300px] px-3 pb-3 basis-[400px] bg-white shadow-lg rounded-lg"
-  >
-    <button class="h-[15px] w-[15px]" (click)="handleCloseReplyingTo()">
-      &#10005;
-    </button>
-    <div class="flex items-start gap-3 mt-3">
-      <img src="../../../assets/default-pfp.svg" class="h-[50px] w-[50px]" />
-      <div class="flex flex-col">
-        <div class="flex">
-          <p>
-            <span class="font-bold"
-              >{{ replyingTo.firstName }} {{ replyingTo.lastName }}</span
-            >
-            <span class="text-gray-500 text-sm"> @{{ replyingTo.at }} </span>
-          </p>
-        </div>
-        <p>{{ replyingTo.content }}</p>
-        <p>
-          <span class="text-gray-500 text-sm">Replying to</span
-          ><span class="text-blue-500">@{{ replyingTo.at }}</span>
-        </p>
-      </div>
-    </div>
-    <div class="flex flex-col gap-1">
-      <div class="flex gap-3">
-        <img src="../../../assets/default-pfp.svg" class="h-[50px] w-[50px]" />
-        <input
-          type="text"
-          placeholder="Tweet your reply!"
-          class="border rounded-sm px-3 py-1 w-full"
-          [(ngModel)]="replyText"
-        />
-      </div>
-      <button
-        (click)="reply(replyingTo._id, replyingTo.type)"
-        class="bg-blue-500 hover:bg-blue-400 transition-all ml-auto px-3 py-1 text-white rounded-lg shadow-sm"
-      >
-        Reply
-      </button>
-    </div>
-  </div>
+  <app-replying-tweet-modal
+    [tweet]="replyingToTweet"
+    (close)="handleCloseTweetModal()"
+    (reply)="replyToTweet($event, replyingToTweet._id)"
+  />
 </div>
 
 <div
-  *ngIf="tweetModal$ | async as tweetModal"
+  *ngIf="replyingToReply$ | async as replyingToReply"
+  class="z-40 flex justify-center items-center absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 bg-gray-300/40 h-full w-full"
+>
+  <app-replying-reply-modal
+    [comment]="replyingToReply"
+    (close)="handleCloseReplyingTo()"
+    (reply)="replyToReply($event, replyingToReply._id)"
+  />
+</div>
+
+<div
+  *ngIf="postModalIsOpen"
   class="z-40 flex justify-center items-center absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 bg-gray-300/40 h-full w-full"
 >
   <div
@@ -86,7 +60,7 @@
 </div>
 
 <div
-  *ngIf="retweetTo$ | async as retweetTo"
+  *ngIf="retweetingModal$ | async as retweetTo"
   class="z-40 flex justify-center items-center absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 bg-gray-300/40 h-full w-full"
 >
   <div
@@ -111,16 +85,19 @@
           <div class="flex">
             <p>
               <span class="font-bold"
-                >{{ retweetTo.firstName }} {{ retweetTo.lastName }}</span
+                >{{ retweetTo.profile.firstName }}
+                {{ retweetTo.profile.lastName }}</span
               >
-              <span class="text-gray-500 text-sm"> @{{ retweetTo.at }} </span>
+              <span class="text-gray-500 text-sm">
+                @{{ retweetTo.profile.at }}
+              </span>
             </p>
           </div>
           <p>{{ retweetTo.content }}</p>
         </div>
       </div>
       <button
-        (click)="retweet(retweetTo._id, retweetTo.type)"
+        (click)="retweet(retweetTo)"
         class="bg-blue-500 hover:bg-blue-400 transition-all ml-auto px-3 py-1 text-white rounded-lg shadow-sm"
       >
         Tweet
