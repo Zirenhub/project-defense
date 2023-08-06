@@ -8,24 +8,29 @@
   <p class="font-bold text-xl">Tweet</p>
 </div>
 
-<app-open-tweet-container
-  [content]="tweet"
-  (like)="like($event, 'tweet')"
-  (reply)="reply($event)"
-  (retweet)="retweet($event, 'tweet')"
-/>
+<ng-container *ngIf="tweet$ | async as tweet">
+  <app-open-tweet-container
+    [content]="tweet"
+    (like)="handleLikeTweet($event)"
+    (reply)="reply($event)"
+    (retweet)="handleOpenRetweetModal(tweet)"
+  />
+</ng-container>
+
 <!-- Display replies if available -->
-<div *ngIf="replies" class="flex flex-col">
-  <ng-container *ngFor="let reply of replies">
-    <app-reply-container
-      [comment]="reply"
-      (like)="like($event, 'reply')"
-      (reply)="commentReply($event)"
-      (click)="navigateToReply(reply._id)"
-      (retweet)="retweet($event, 'reply')"
-    />
-  </ng-container>
-</div>
+<ng-container *ngIf="replies$ | async as replies">
+  <div class="flex flex-col">
+    <ng-container *ngFor="let reply of replies">
+      <app-reply-container
+        (click)="navigateToReply(reply._id)"
+        [comment]="reply"
+        (like)="handleLikeReply($event)"
+        (reply)="handleOpenReplyModal(reply)"
+        (retweet)="handleOpenRetweetModal(reply)"
+      />
+    </ng-container>
+  </div>
+</ng-container>
 
 <ng-template #loading>
   <p class="text-center">Loading...</p>

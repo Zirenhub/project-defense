@@ -5,17 +5,22 @@ import { Observable, Subscription } from 'rxjs';
 import { Location } from '@angular/common';
 import { AppState } from '../state/app.state';
 import {
-  getTweet,
+  selectSingleReplies,
+  selectSingleTweet,
+} from '../state/single/single.selectors';
+import { Tweet } from '../types/Tweet';
+import {
   likeReply,
   likeTweet,
-  openReplyModal,
-  openRetweetModal,
   postReply,
-} from '../state/tweets/tweet.actions';
-import { selectTweetSingle } from '../state/tweets/tweet.selectors';
-import { Single } from '../state/tweets/tweet.reducer';
+  sharedContext,
+} from '../state/shared/shared.actions';
+import {
+  openReplyingToReplyModal,
+  openRetweetModal,
+} from '../state/modal/modal.actions';
 import { Reply } from '../types/Reply';
-import { Tweet } from '../types/Tweet';
+import { singleGetTweet } from '../state/single/single.actions';
 
 @Component({
   selector: 'app-singular-tweet',
@@ -23,13 +28,12 @@ import { Tweet } from '../types/Tweet';
 })
 export class TweetComponent implements OnInit, OnDestroy {
   private routeSub: Subscription;
+
+  context: sharedContext = sharedContext.Single;
   tweetId?: string;
 
-  tweet$: Observable<Single | null>;
-  tweetSub: Subscription;
-
-  tweet?: Tweet;
-  replies?: Reply[];
+  tweet$: Observable<Tweet | null>;
+  replies$: Observable<Reply[] | null>;
 
   constructor(
     private route: ActivatedRoute,
@@ -41,14 +45,8 @@ export class TweetComponent implements OnInit, OnDestroy {
       this.tweetId = params['id'] as string;
     });
 
-    this.tweet$ = this.store.select(selectTweetSingle);
-
-    this.tweetSub = this.tweet$.subscribe((tweet) => {
-      if (tweet) {
-        this.tweet = tweet.tweet;
-        this.replies = tweet.replies;
-      }
-    });
+    this.tweet$ = this.store.select(selectSingleTweet);
+    this.replies$ = this.store.select(selectSingleReplies);
   }
 
   back() {
@@ -61,34 +59,36 @@ export class TweetComponent implements OnInit, OnDestroy {
 
   reply(reply: string) {
     if (reply && this.tweetId) {
-      this.store.dispatch(postReply({ id: this.tweetId, content: reply }));
+      this.store.dispatch(
+        postReply({ id: this.tweetId, content: reply, context: this.context })
+      );
     }
   }
 
-  retweet(id: string, context: 'tweet' | 'reply') {
-    this.store.dispatch(openRetweetModal({ id, context }));
+  handleOpenRetweetModal(content: Tweet | Reply) {
+    this.store.dispatch(openRetweetModal({ content, context: this.context }));
   }
 
-  commentReply(id: string) {
-    this.store.dispatch(openReplyModal({ id, context: 'reply' }));
+  handleOpenReplyModal(reply: Reply) {
+    this.store.dispatch(
+      openReplyingToReplyModal({ reply, context: this.context })
+    );
   }
 
-  like(id: string, type: 'tweet' | 'reply') {
-    if (type === 'tweet') {
-      this.store.dispatch(likeTweet({ id, isOnProfile: false }));
-    } else {
-      this.store.dispatch(likeReply({ id, isOnProfile: false }));
-    }
+  handleLikeTweet(id: string) {
+    this.store.dispatch(likeTweet({ id, context: this.context }));
+  }
+  handleLikeReply(id: string) {
+    this.store.dispatch(likeReply({ id, context: this.context }));
   }
 
   ngOnInit(): void {
     if (this.tweetId) {
-      this.store.dispatch(getTweet({ id: this.tweetId }));
+      this.store.dispatch(singleGetTweet({ id: this.tweetId }));
     }
   }
 
   ngOnDestroy(): void {
     this.routeSub.unsubscribe();
-    this.tweetSub.unsubscribe();
   }
 }
