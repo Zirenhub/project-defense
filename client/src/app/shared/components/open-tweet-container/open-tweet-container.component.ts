@@ -10,8 +10,8 @@ import { Tweet } from 'src/app/types/Tweet';
 export class OpenTweetContainerComponent {
   @Input() content?: Tweet | Reply;
   @Output() like = new EventEmitter<string>();
-  @Output() retweet = new EventEmitter<string>();
   @Output() reply = new EventEmitter<string>();
+  @Output() retweet = new EventEmitter();
 
   constructor(private router: Router) {}
 
@@ -30,7 +30,7 @@ export class OpenTweetContainerComponent {
 
   handleRetweet() {
     if (this.content && !this.content.isRetweeted) {
-      this.retweet.emit(this.content._id);
+      this.retweet.emit();
     }
   }
 

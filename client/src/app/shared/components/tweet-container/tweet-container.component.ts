@@ -9,9 +9,9 @@ import { Tweet } from 'src/app/types/Tweet';
 })
 export class TweetContainerComponent {
   @Input() tweet: Tweet | null = null;
-  @Output() like = new EventEmitter<string>();
-  @Output() reply = new EventEmitter<string>();
-  @Output() retweet = new EventEmitter<string>();
+  @Output() like = new EventEmitter();
+  @Output() reply = new EventEmitter();
+  @Output() retweet = new EventEmitter();
 
   constructor(private router: Router) {}
 
@@ -43,21 +43,21 @@ export class TweetContainerComponent {
   handleLike($event: Event) {
     $event.stopPropagation();
     if (this.tweet) {
-      this.like.emit(this.tweet._id);
+      this.like.emit();
     }
   }
 
   handleReply($event: Event) {
     $event.stopPropagation();
     if (this.tweet) {
-      this.reply.emit(this.tweet._id);
+      this.reply.emit();
     }
   }
 
   handleRetweet($event: Event) {
     $event.stopPropagation();
     if (this.tweet && !this.tweet.isRetweeted) {
-      this.retweet.emit(this.tweet._id);
+      this.retweet.emit();
     }
   }
 }

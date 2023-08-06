@@ -2,9 +2,9 @@
   <div *ngFor="let tweet of tweets" (click)="openTweet(tweet._id)">
     <app-tweet-container
       [tweet]="tweet"
-      (reply)="handleOpenReplyModal($event)"
-      (like)="like($event)"
-      (retweet)="handleOpenRetweetModal($event)"
+      (reply)="handleOpenReplyModal(tweet._id)"
+      (like)="like(tweet._id)"
+      (retweet)="handleOpenRetweetModal(tweet._id)"
     />
   </div>
 </div>
