@@ -1,1 +1,18 @@
-<app-tweet-feed [tweets]="timeline" />
+<div class="flex w-full p-3 gap-3 bg-white border-b-2">
+  <img src="../../../assets/default-pfp.svg" class="w-[50px] h-[50px]" />
+  <div class="flex flex-col w-full gap-3">
+    <textarea
+      placeholder="What is happening?!"
+      class="text-lg p-3 max-h-[300px] border"
+      [(ngModel)]="postContent"
+    ></textarea>
+    <button
+      [disabled]="!postContent"
+      (click)="handlePost()"
+      class="ml-auto px-4 py-1 rounded-full bg-blue-500 text-white"
+    >
+      Post
+    </button>
+  </div>
+</div>
+<app-tweet-feed [tweets]="timeline" [context]="context" />
