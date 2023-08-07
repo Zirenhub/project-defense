@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { AppState } from 'src/app/state/app.state';
@@ -15,11 +15,10 @@ import { sharedContext } from 'src/app/state/shared/shared.actions';
   selector: 'app-layout',
   templateUrl: './layout.component.html',
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnDestroy {
   postModalIsOpen: boolean = false;
 
   contextSub: Subscription;
-  //UNSUB
 
   replyingToReply$: Observable<Reply | null>;
   replyingToTweet$: Observable<Tweet | null>;
@@ -55,6 +54,10 @@ export class LayoutComponent {
     this.contextSub = this.context$.subscribe((context) => {
       this.context = context;
     });
+  }
+
+  togglePostModal() {
+    this.postModalIsOpen = !this.postModalIsOpen;
   }
 
   handleCloseReplyingTo() {
@@ -105,7 +108,7 @@ export class LayoutComponent {
       );
     }
     this.postText = '';
-    this.handleCloseTweetModal();
+    this.togglePostModal();
   }
 
   retweet(content: Tweet | Reply) {
@@ -135,4 +138,8 @@ export class LayoutComponent {
   //     this.store.dispatch(modalActions.clear());
   //   }
   // }
+
+  ngOnDestroy(): void {
+    this.contextSub.unsubscribe();
+  }
 }

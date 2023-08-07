@@ -1,10 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { AppState } from 'src/app/state/app.state';
 import { selectAuthUser } from 'src/app/state/auth/auth.selectors';
-import { openTweetModal } from 'src/app/state/tweets/tweet.actions';
 import { User } from 'src/app/types/User';
 
 @Component({
@@ -12,6 +11,8 @@ import { User } from 'src/app/types/User';
   templateUrl: './user-sidebar.component.html',
 })
 export class UserSidebarComponent {
+  @Output() openPostModal = new EventEmitter();
+
   buttons = [
     { name: 'Home', onClick: () => this.router.navigateByUrl('/home') },
     { name: 'Explore', onClick: null },
@@ -41,7 +42,7 @@ export class UserSidebarComponent {
     });
   }
 
-  handleOpenTweetModal() {
-    this.store.dispatch(openTweetModal());
+  handleOpenPostModal() {
+    this.openPostModal.emit();
   }
 }
