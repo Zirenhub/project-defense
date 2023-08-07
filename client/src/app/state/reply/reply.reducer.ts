@@ -168,5 +168,26 @@ export const replyReducer = createReducer(
       validationErrors: validationErrors ? validationErrors : null,
       status: 'error' as const,
     })
-  )
+  ),
+  on(replyActions.postReplySuccess, (state, { reply }) => {
+    return {
+      ...state,
+      content: {
+        ...state.content,
+        tweet:
+          state.content.tweet && reply.tweet._id === state.content.tweet._id
+            ? {
+                ...state.content.tweet,
+                repliesCount: state.content.tweet.repliesCount + 1,
+              }
+            : state.content.tweet,
+      },
+    };
+  }),
+  on(replyActions.postReplyFailure, (state, { error, validationErrors }) => ({
+    ...state,
+    error: error ? error : null,
+    validationErrors: validationErrors ? validationErrors : null,
+    status: 'error' as const,
+  }))
 );

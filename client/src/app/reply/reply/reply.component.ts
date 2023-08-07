@@ -70,7 +70,6 @@ export class ReplyComponent implements OnInit, OnDestroy {
     );
   }
 
-  // FIX THIS, ADD A LISTENER ON REDUCER !!!
   handleOpenReplyToTweetModal(tweet: Tweet) {
     this.store.dispatch(
       modalActions.openReplyingToTweetModal({ tweet, context: this.context })
