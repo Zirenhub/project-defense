@@ -67,14 +67,12 @@ export const profileLikes = async (req: Request, res: Response) => {
     const userId = res.locals.user._id;
     const likes = await LikeModel.find({
       likes: { $in: [profileId] },
-    })
-      .populate({
-        path: 'type.original',
-        populate: {
-          path: 'profile',
-        },
-      })
-      .sort({ createdAt: -1 });
+    }).populate({
+      path: 'type.original',
+      populate: {
+        path: 'profile',
+      },
+    });
 
     // .populate({
     //   path: 'tweet.retweet.original',
@@ -85,7 +83,10 @@ export const profileLikes = async (req: Request, res: Response) => {
 
     // fix type later, shows array of object ids even tho we populated the tweet above
     const likedTweets = likes.map((t) => t.type.original) as any;
-    const modifiedTweets = await getExtraTweetInfo(likedTweets, userId);
+    const modifiedTweets = (await getExtraTweetInfo(likedTweets, userId)).sort(
+      (a, b) =>
+        new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf()
+    );
 
     return res.json({
       status: 'success',
