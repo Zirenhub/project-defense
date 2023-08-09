@@ -109,7 +109,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
       );
     }
   }
-  handleRetweet(like: Tweet | Reply) {}
+
+  handleRetweet(like: Tweet | Reply) {
+    this.store.dispatch(
+      modalActions.openRetweetModal({
+        content: like,
+        context: this.context,
+      })
+    );
+  }
 
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe((params) => {

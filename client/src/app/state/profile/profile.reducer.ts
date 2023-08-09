@@ -6,6 +6,7 @@ import { User } from 'src/app/types/User';
 import { mapToggleLike } from '../shared/toggleLike';
 import { ValidationErrors } from 'src/app/types/Api';
 import { mapIncRepliesCount } from '../shared/incReplies';
+import { mapToggleRetweet } from '../shared/toggleRetweet';
 
 export interface ProfileState {
   profile: User | null;
@@ -81,5 +82,37 @@ export const profileReducer = createReducer(
     error: error ? error : null,
     validationErrors: validationErrors ? validationErrors : null,
     status: 'error' as const,
-  }))
+  })),
+  on(profileActions.retweetTweetSuccess, (state, { tweet }) => ({
+    ...state,
+    tweets:
+      tweet.profile._id === state.profile?._id
+        ? [tweet, ...(mapToggleRetweet(state.tweets, tweet) as Tweet[])]
+        : (mapToggleRetweet(state.tweets, tweet) as Tweet[]),
+    // likes: mapIncRepliesCount(state.likes, reply.tweet._id),
+    status: 'success' as const,
+  })),
+  on(
+    profileActions.retweetTweetFailure,
+    (state, { error, validationErrors }) => ({
+      ...state,
+      error: error ? error : null,
+      validationErrors: validationErrors ? validationErrors : null,
+      status: 'error' as const,
+    })
+  ),
+  on(profileActions.retweetReplySuccess, (state, { tweet }) => ({
+    ...state,
+    likes: mapToggleRetweet(state.likes, tweet),
+    status: 'success' as const,
+  })),
+  on(
+    profileActions.retweetReplyFailure,
+    (state, { error, validationErrors }) => ({
+      ...state,
+      error: error ? error : null,
+      validationErrors: validationErrors ? validationErrors : null,
+      status: 'error' as const,
+    })
+  )
 );
