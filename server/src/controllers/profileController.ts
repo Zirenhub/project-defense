@@ -107,31 +107,39 @@ export const follow = async (req: Request, res: Response) => {
   try {
     const profileId = req.params.id;
     const userId = res.locals.user._id;
+
     const profile = await ProfileModel.findById(profileId);
-    if (!profile) {
+    const user = await ProfileModel.findById(userId);
+
+    if (!profile || !user) {
       return res.status(404).json({
         status: 'error',
         errors: null,
         message: 'Profile not found',
       });
     }
-    const userIdObject = new mongoose.Types.ObjectId(userId);
-    if (profile._id === userIdObject) {
+
+    // validations
+    if (profile._id === user._id) {
       return res.status(400).json({
         status: 'error',
         errors: null,
         message: 'You cant follow yourself',
       });
     }
-    if (profile.followers.includes(userIdObject)) {
+    if (profile.followers.includes(user._id)) {
       return res.status(400).json({
         status: 'error',
         errors: null,
         message: 'Profile is already being followed',
       });
     }
-    profile.followers.push(userIdObject);
+    // use transactions !
+    profile.followers.push(user._id);
+    user.following.push(profile._id);
+
     await profile.save();
+    await user.save();
 
     return res.json({
       status: 'success',
@@ -151,16 +159,19 @@ export const unfollow = async (req: Request, res: Response) => {
   try {
     const profileId = req.params.id;
     const userId = res.locals.user._id;
+
     const profile = await ProfileModel.findById(profileId);
-    if (!profile) {
+    const user = await ProfileModel.findById(userId);
+
+    if (!profile || !user) {
       return res.status(404).json({
         status: 'error',
         errors: null,
         message: 'Profile not found',
       });
     }
-    const userIdObject = new mongoose.Types.ObjectId(userId);
-    if (profile._id === userIdObject) {
+
+    if (profile._id === user._id) {
       return res.status(400).json({
         status: 'error',
         errors: null,
@@ -168,16 +179,23 @@ export const unfollow = async (req: Request, res: Response) => {
       });
     }
     // not necessary
-    if (!profile.followers.includes(userIdObject)) {
+    if (!profile.followers.includes(user._id)) {
       return res.status(400).json({
         status: 'error',
         errors: null,
         message: 'Profile is not being followed',
       });
     }
-    const unFollowed = profile.followers.filter((f) => !f.equals(userIdObject));
-    profile.followers = unFollowed;
+
+    const profileUnfollowed = profile.followers.filter(
+      (f) => !f.equals(user._id)
+    );
+    const userUnfollowed = user.following.filter((f) => !f.equals(profile._id));
+    profile.followers = profileUnfollowed;
+    user.following = userUnfollowed;
+
     await profile.save();
+    await user.save();
 
     return res.json({
       status: 'success',
