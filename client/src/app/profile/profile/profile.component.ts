@@ -8,6 +8,7 @@ import * as profileActions from 'src/app/state/profile/profile.actions';
 import * as sharedActions from 'src/app/state/shared/shared.actions';
 import * as modalActions from '../../state/modal/modal.actions';
 import * as profileSelectors from 'src/app/state/profile/profile.selectors';
+import * as authSelectors from '../../state/auth/auth.selectors';
 import { Reply } from 'src/app/types/Reply';
 import { Tweet } from 'src/app/types/Tweet';
 import { User } from 'src/app/types/User';
@@ -21,6 +22,8 @@ type button = { name: Pages; init: () => void };
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   private routeSub?: Subscription;
+  private authSub: Subscription;
+  private profileSub: Subscription;
 
   profileId?: string;
   context: sharedActions.sharedContext = sharedActions.sharedContext.Profile;
@@ -28,7 +31,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
   profile$: Observable<User | null>;
   tweets$: Observable<Tweet[]>;
   likes$: Observable<(Tweet | Reply)[]>;
+  authUser$: Observable<User | null>;
 
+  profile: User | null = null;
+  authUser: User | null = null;
+  // save this on profile state ???
+  isFollowing: boolean = true;
   activePage: Pages = 'Tweets';
 
   constructor(
@@ -40,6 +48,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.tweets$ = this.store.select(profileSelectors.selectProfileTweets);
     this.profile$ = this.store.select(profileSelectors.selectGetProfile);
     this.likes$ = this.store.select(profileSelectors.selectProfileLikes);
+    this.authUser$ = this.store.select(authSelectors.selectAuthUser);
+
+    this.authSub = this.authUser$.subscribe((user) => {
+      this.authUser = user;
+    });
+    this.profileSub = this.profile$.subscribe((profile) => {
+      this.profile = profile;
+      this.getIsFollowing();
+    });
   }
 
   navigateBack() {
@@ -119,6 +136,30 @@ export class ProfileComponent implements OnInit, OnDestroy {
     );
   }
 
+  handleFollow() {
+    if (this.profile) {
+      if (this.isFollowing) {
+        this.store.dispatch(profileActions.unfollow({ id: this.profile._id }));
+      } else {
+        this.store.dispatch(profileActions.follow({ id: this.profile._id }));
+      }
+      // update only if follow or unfollow is successful??
+      this.isFollowing = !this.isFollowing;
+    }
+  }
+
+  private getIsFollowing() {
+    if (
+      this.profile &&
+      this.authUser &&
+      this.profile.followers.includes(this.authUser._id)
+    ) {
+      this.isFollowing = true;
+    } else {
+      this.isFollowing = false;
+    }
+  }
+
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe((params) => {
       this.profileId = params['id'] as string;
@@ -134,5 +175,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+    this.profileSub.unsubscribe();
+    this.authSub.unsubscribe();
   }
 }

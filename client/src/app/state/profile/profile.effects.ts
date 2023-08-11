@@ -17,6 +17,42 @@ export class ProfileEffects {
 
   // this.actions$ is an observable that emits the actions dispatched in the application
 
+  profileFollow$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(profileActions.follow),
+      mergeMap((action) =>
+        this.profileService.follow(action.id).pipe(
+          map((res) => profileActions.followSucces({ profile: res.data })),
+          catchError((error) =>
+            of(
+              profileActions.followFailure({
+                error: error.error.message || 'Unknown',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
+  profileUnfollow$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(profileActions.unfollow),
+      mergeMap((action) =>
+        this.profileService.unfollow(action.id).pipe(
+          map((res) => profileActions.unfollowSucces({ profile: res.data })),
+          catchError((error) =>
+            of(
+              profileActions.unfollowFailure({
+                error: error.error.message || 'Unknown',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
   profileTweets$ = createEffect(() =>
     this.actions$.pipe(
       ofType(profileActions.profileTweets),

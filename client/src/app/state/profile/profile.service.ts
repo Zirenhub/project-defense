@@ -21,4 +21,12 @@ export class ProfileService {
   getProfile(id: string) {
     return this.http.get<GetProfileRes>(`/api/profile/${id}`);
   }
+
+  follow(id: string) {
+    return this.http.post<GetProfileRes>(`/api/profile/${id}/follow`, {});
+  }
+
+  unfollow(id: string) {
+    return this.http.delete<GetProfileRes>(`/api/profile/${id}/follow`, {});
+  }
 }

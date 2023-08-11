@@ -114,5 +114,25 @@ export const profileReducer = createReducer(
       validationErrors: validationErrors ? validationErrors : null,
       status: 'error' as const,
     })
-  )
+  ),
+  on(profileActions.followSucces, (state, { profile }) => ({
+    ...state,
+    profile,
+    status: 'success' as const,
+  })),
+  on(profileActions.followFailure, (state, { error }) => ({
+    ...state,
+    error,
+    status: 'error' as const,
+  })),
+  on(profileActions.unfollowSucces, (state, { profile }) => ({
+    ...state,
+    profile,
+    status: 'success' as const,
+  })),
+  on(profileActions.unfollowFailure, (state, { error }) => ({
+    ...state,
+    error,
+    status: 'error' as const,
+  }))
 );

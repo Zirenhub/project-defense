@@ -56,7 +56,6 @@ export const retweetTweetSuccess = createAction(
   '[Profile] Retweet Tweet Success',
   props<{ tweet: Tweet }>()
 );
-
 export const retweetTweetFailure = createAction(
   '[Profile] Retweet Tweet Failure',
   props<{ error?: string; validationErrors?: ValidationErrors }>()
@@ -66,7 +65,6 @@ export const retweetReplySuccess = createAction(
   '[Profile] Retweet Reply Success',
   props<{ tweet: Tweet }>()
 );
-
 export const retweetReplyFailure = createAction(
   '[Profile] Retweet Reply Failure',
   props<{ error?: string; validationErrors?: ValidationErrors }>()
@@ -76,8 +74,30 @@ export const postReplySuccess = createAction(
   '[Profile] Post Reply Success',
   props<{ reply: Reply }>()
 );
-
 export const postReplyFailure = createAction(
   '[Profile] Post Reply Failure',
   props<{ error?: string; validationErrors?: ValidationErrors }>()
+);
+
+export const follow = createAction('[Profile] Follow', props<{ id: string }>());
+export const followSucces = createAction(
+  '[Profile] Follow Success',
+  props<{ profile: User }>()
+);
+export const followFailure = createAction(
+  '[Profile] Follow Failure',
+  props<{ error: string }>()
+);
+
+export const unfollow = createAction(
+  '[Profile] Unfollow',
+  props<{ id: string }>()
+);
+export const unfollowSucces = createAction(
+  '[Profile] Unfollow Success',
+  props<{ profile: User }>()
+);
+export const unfollowFailure = createAction(
+  '[Profile] Unfollow Failure',
+  props<{ error: string }>()
 );
