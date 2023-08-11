@@ -77,14 +77,14 @@ export class AuthEffects {
     )
   );
 
-  logoutSuccess$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.logoutSuccess),
-      tap(() => {
-        this.router.navigate(['/auth']);
-      })
-    )
-  );
+  // logoutSuccess$ = createEffect(() =>
+  //   this.actions$.pipe(
+  //     ofType(AuthActions.logoutSuccess),
+  //     tap(() => {
+  //       this.router.navigate(['/auth']);
+  //     })
+  //   )
+  // );
 
   signup$ = createEffect(() =>
     this.actions$.pipe(
