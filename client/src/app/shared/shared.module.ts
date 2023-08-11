@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { RetweetReplyContainerComponent } from './components/retweet-reply-container/retweet-reply-container.component';
 import { RetweetTweetContainerComponent } from './components/retweet-tweet-container/retweet-tweet-container.component';
 import { TweetFeedComponent } from './components/tweet-feed/tweet-feed.component';
+import { HoverTextDirective } from './directives/hover-text.directive';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { TweetFeedComponent } from './components/tweet-feed/tweet-feed.component
     RetweetReplyContainerComponent,
     RetweetTweetContainerComponent,
     TweetFeedComponent,
+    HoverTextDirective,
   ],
   imports: [CommonModule, FormsModule],
   exports: [
@@ -40,6 +42,7 @@ import { TweetFeedComponent } from './components/tweet-feed/tweet-feed.component
     RetweetReplyContainerComponent,
     RetweetTweetContainerComponent,
     TweetFeedComponent,
+    HoverTextDirective,
   ],
 })
 export class SharedModule {}
