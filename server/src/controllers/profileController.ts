@@ -4,6 +4,7 @@ import { getExtraTweetInfo } from './tweetController';
 import ProfileModel from '../models/profile';
 import LikeModel from '../models/likes';
 import { ITweet } from '../interfaces/ITweet';
+import mongoose from 'mongoose';
 
 export const profileTweets = async (req: Request, res: Response) => {
   try {
@@ -91,6 +92,97 @@ export const profileLikes = async (req: Request, res: Response) => {
     return res.json({
       status: 'success',
       data: modifiedTweets,
+      message: null,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 'error',
+      errors: null,
+      message: err instanceof Error ? err.message : 'unknown',
+    });
+  }
+};
+
+export const follow = async (req: Request, res: Response) => {
+  try {
+    const profileId = req.params.id;
+    const userId = res.locals.user._id;
+    const profile = await ProfileModel.findById(profileId);
+    if (!profile) {
+      return res.status(404).json({
+        status: 'error',
+        errors: null,
+        message: 'Profile not found',
+      });
+    }
+    const userIdObject = new mongoose.Types.ObjectId(userId);
+    if (profile._id === userIdObject) {
+      return res.status(400).json({
+        status: 'error',
+        errors: null,
+        message: 'You cant follow yourself',
+      });
+    }
+    if (profile.followers.includes(userIdObject)) {
+      return res.status(400).json({
+        status: 'error',
+        errors: null,
+        message: 'Profile is already being followed',
+      });
+    }
+    profile.followers.push(userIdObject);
+    await profile.save();
+
+    return res.json({
+      status: 'success',
+      data: profile,
+      message: null,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 'error',
+      errors: null,
+      message: err instanceof Error ? err.message : 'unknown',
+    });
+  }
+};
+
+export const unfollow = async (req: Request, res: Response) => {
+  try {
+    const profileId = req.params.id;
+    const userId = res.locals.user._id;
+    const profile = await ProfileModel.findById(profileId);
+    if (!profile) {
+      return res.status(404).json({
+        status: 'error',
+        errors: null,
+        message: 'Profile not found',
+      });
+    }
+    const userIdObject = new mongoose.Types.ObjectId(userId);
+    if (profile._id === userIdObject) {
+      return res.status(400).json({
+        status: 'error',
+        errors: null,
+        message: 'You cant unfollow yourself',
+      });
+    }
+    // not necessary
+    if (!profile.followers.includes(userIdObject)) {
+      return res.status(400).json({
+        status: 'error',
+        errors: null,
+        message: 'Profile is not being followed',
+      });
+    }
+    // find a way to update the followers list
+    const unFollowed = profile.followers.filter((f) => f !== userIdObject);
+    profile.followers = unFollowed;
+    await profile.save();
+
+    return res.json({
+      status: 'success',
+      data: profile,
       message: null,
     });
   } catch (err) {
