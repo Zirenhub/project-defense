@@ -54,3 +54,17 @@ export const getTimelineFailure = createAction(
   '[Timeline] Get Timeline Failure',
   props<{ error: string }>()
 );
+
+export const getFollowingTimeline = createAction(
+  '[Timeline] Get Following Timeline'
+);
+
+export const getFollowingTimelineSuccess = createAction(
+  '[Timeline] Get Following Timeline Success',
+  props<{ timeline: Tweet[] }>()
+);
+
+export const getFollowingTimelineFailure = createAction(
+  '[Timeline] Get Following Timeline Failure',
+  props<{ error: string }>()
+);

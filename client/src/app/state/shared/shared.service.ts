@@ -19,6 +19,10 @@ export class SharedService {
     return this.http.get<TimelineRes>('/api/tweet/timeline');
   }
 
+  getFollowingTimeline() {
+    return this.http.get<TimelineRes>('/api/tweet/following');
+  }
+
   postTweet(content: string) {
     return this.http.post<PostTweetRes>('/api/tweet', { content });
   }

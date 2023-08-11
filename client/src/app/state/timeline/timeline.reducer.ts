@@ -33,12 +33,29 @@ export const timelineReducer = createReducer(
     validationErrors: null,
     status: 'loading' as const,
   })),
+  on(timelineActions.getFollowingTimeline, (state) => ({
+    ...state,
+    content: { tweets: null },
+    error: null,
+    validationErrors: null,
+    status: 'loading' as const,
+  })),
   on(timelineActions.getTimelineSuccess, (state, { timeline }) => ({
     ...state,
     content: { tweets: timeline },
     status: 'success' as const,
   })),
   on(timelineActions.getTimelineFailure, (state, { error }) => ({
+    ...state,
+    error: error,
+    status: 'error' as const,
+  })),
+  on(timelineActions.getFollowingTimelineSuccess, (state, { timeline }) => ({
+    ...state,
+    content: { tweets: timeline },
+    status: 'success' as const,
+  })),
+  on(timelineActions.getFollowingTimelineFailure, (state, { error }) => ({
     ...state,
     error: error,
     status: 'error' as const,

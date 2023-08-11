@@ -4,33 +4,46 @@ import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { AppState } from 'src/app/state/app.state';
 import { sharedContext } from 'src/app/state/shared/shared.actions';
-import { getTimeline } from 'src/app/state/timeline/timeline.actions';
+import {
+  getFollowingTimeline,
+  getTimeline,
+} from 'src/app/state/timeline/timeline.actions';
 import { selectTimelineTweets } from 'src/app/state/timeline/timeline.selectors';
 import { Tweet } from 'src/app/types/Tweet';
 import * as sharedActions from '../../state/shared/shared.actions';
+
+type Pages = 'For you' | 'Following';
 
 @Component({
   selector: 'app-feed',
   templateUrl: './feed.component.html',
 })
-export class FeedComponent implements OnDestroy {
+export class FeedComponent {
   postContent: string = '';
 
-  timeline: Tweet[] = [];
-  context: sharedContext = sharedContext.Timeline;
+  pages: Pages[] = ['For you', 'Following'];
+  activePage = this.pages[0];
 
+  context: sharedContext = sharedContext.Timeline;
   timeline$: Observable<Tweet[] | null>;
-  timelineSub: Subscription;
 
   constructor(private store: Store<AppState>, private router: Router) {
     this.store.dispatch(getTimeline());
     this.timeline$ = this.store.select(selectTimelineTweets);
+  }
 
-    this.timelineSub = this.timeline$.subscribe((timeline) => {
-      if (timeline) {
-        this.timeline = timeline;
-      }
-    });
+  handleActivePageInit(page: Pages) {
+    if (page === 'For you') {
+      this.store.dispatch(getTimeline());
+    }
+    if (page === 'Following') {
+      this.store.dispatch(getFollowingTimeline());
+    }
+  }
+
+  handleActivePage(page: Pages) {
+    this.handleActivePageInit(page);
+    this.activePage = page;
   }
 
   handlePost() {
@@ -43,9 +56,5 @@ export class FeedComponent implements OnDestroy {
       );
     }
     this.postContent = '';
-  }
-
-  ngOnDestroy(): void {
-    this.timelineSub.unsubscribe();
   }
 }

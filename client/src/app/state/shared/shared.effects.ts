@@ -28,7 +28,13 @@ export class SharedEffects {
         failure: timelineActions.postTweetFailure,
       };
     }
-    // modal also
+    // FIX THIS !!!! if on profile and tweet, tweet is lost
+    if (context === sharedActions.sharedContext.Modal) {
+      return {
+        success: timelineActions.postTweetSuccess,
+        failure: timelineActions.postTweetFailure,
+      };
+    }
 
     return {
       success: timelineActions.postTweetSuccess,
@@ -185,6 +191,26 @@ export class SharedEffects {
           catchError((error) =>
             of(
               timelineActions.getTimelineFailure({
+                error: error.error.message || 'Unknown',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
+  getFollowingTimeline$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(timelineActions.getFollowingTimeline),
+      switchMap(() =>
+        this.sharedService.getFollowingTimeline().pipe(
+          map((res) =>
+            timelineActions.getFollowingTimelineSuccess({ timeline: res.data })
+          ),
+          catchError((error) =>
+            of(
+              timelineActions.getFollowingTimelineFailure({
                 error: error.error.message || 'Unknown',
               })
             )
