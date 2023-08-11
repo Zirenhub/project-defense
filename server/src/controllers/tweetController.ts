@@ -4,6 +4,7 @@ import TweetModel from '../models/tweet';
 import LikeModel from '../models/likes';
 import CommentModel from '../models/comment';
 import mongoose, { Document } from 'mongoose';
+import ProfileModel from '../models/profile';
 
 export const getExtraTweetInfo = async (tweets: Document[], userId: string) => {
   const filledTweets = await Promise.all(
@@ -243,6 +244,45 @@ export const timeline = async (req: Request, res: Response) => {
   try {
     const userId = res.locals.user._id;
     const timeline = await TweetModel.find()
+      .sort({ createdAt: -1 })
+      .populate('profile')
+      .populate({
+        path: 'retweet.original',
+        populate: {
+          path: 'profile',
+        },
+      });
+
+    const modifiedTimeline = await getExtraTweetInfo(timeline, userId);
+
+    return res.status(200).json({
+      status: 'success',
+      data: modifiedTimeline,
+      message: null,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 'error',
+      errors: null,
+      message: err instanceof Error ? err.message : 'unknown',
+    });
+  }
+};
+
+export const following = async (req: Request, res: Response) => {
+  try {
+    const userId = res.locals.user._id;
+    const profile = await ProfileModel.findById(userId);
+    if (!profile) {
+      return res.status(400).json({
+        status: 'error',
+        errors: null,
+        message: 'Profile is not found',
+      });
+    }
+    const following = profile.following;
+    console.log(following);
+    const timeline = await TweetModel.find({ profile: { $in: following } })
       .sort({ createdAt: -1 })
       .populate('profile')
       .populate({
