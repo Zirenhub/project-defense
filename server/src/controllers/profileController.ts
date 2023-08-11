@@ -175,8 +175,7 @@ export const unfollow = async (req: Request, res: Response) => {
         message: 'Profile is not being followed',
       });
     }
-    // find a way to update the followers list
-    const unFollowed = profile.followers.filter((f) => f !== userIdObject);
+    const unFollowed = profile.followers.filter((f) => !f.equals(userIdObject));
     profile.followers = unFollowed;
     await profile.save();
 
