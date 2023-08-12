@@ -3,28 +3,31 @@ import { ILike } from '../interfaces/ILike';
 
 const Schema = mongoose.Schema;
 
-const LikeSchema = new Schema<ILike>({
-  likes: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Profile',
-      required: true,
-    },
-  ],
-  type: {
-    originalModel: {
-      type: String,
-      enum: ['Tweet', 'Comment'],
-      required: true,
-    },
-    original: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      unique: true,
-      refPath: 'type.originalModel',
+const LikeSchema = new Schema<ILike>(
+  {
+    likes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Profile',
+        required: true,
+      },
+    ],
+    type: {
+      originalModel: {
+        type: String,
+        enum: ['Tweet', 'Comment'],
+        required: true,
+      },
+      original: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        unique: true,
+        refPath: 'type.originalModel',
+      },
     },
   },
-});
+  { timestamps: true }
+);
 
 LikeSchema.statics.likeTweet = async function (
   tweetId: Types.ObjectId,
