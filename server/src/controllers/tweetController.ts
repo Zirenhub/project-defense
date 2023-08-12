@@ -307,3 +307,66 @@ export const following = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const trending = async (req: Request, res: Response) => {
+  try {
+    const userId = res.locals.user._id;
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const mostLikedTweets = await LikeModel.aggregate([
+      // Stage 1: Match likes of the past 24 hours for tweets
+      {
+        $match: {
+          'type.originalModel': 'Tweet',
+          createdAt: { $gte: twentyFourHoursAgo },
+        },
+      },
+      // Stage 2: Unwind the likes array to create a separate document for each like
+      {
+        $unwind: '$likes',
+      },
+      // Stage 3: Group the documents by tweet ID and calculate total likes
+      {
+        $group: {
+          _id: '$type.original',
+          totalLikes: { $sum: 1 },
+        },
+      },
+      // Stage 4: Sort the grouped documents by total likes in descending order
+      {
+        $sort: {
+          totalLikes: -1,
+        },
+      },
+      // Stage 5: Limit the results to the top 10 tweets
+      {
+        $limit: 10,
+      },
+    ]);
+
+    const tweetIds = mostLikedTweets.map(
+      (item) => new mongoose.Types.ObjectId(item._id)
+    );
+
+    // Fetch the actual tweet data using the tweetIds
+    const tweets = await TweetModel.find({
+      _id: { $in: tweetIds },
+    });
+
+    const modifiedTweets = (await getExtraTweetInfo(tweets, userId)).sort(
+      (a, b) =>
+        new Date(a.createdAt).valueOf() - new Date(b.createdAt).valueOf()
+    );
+
+    return res.status(200).json({
+      status: 'success',
+      data: modifiedTweets,
+      message: null,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 'error',
+      errors: null,
+      message: err instanceof Error ? err.message : 'unknown',
+    });
+  }
+};

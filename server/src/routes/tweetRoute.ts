@@ -7,6 +7,7 @@ import {
   retweet,
   timeline,
   following,
+  trending,
 } from '../controllers/tweetController';
 import { jwtAuth } from '../middleware/jwtAuth';
 import { getTweet } from '../middleware/getTweet';
@@ -18,6 +19,7 @@ router.post('/', jwtAuth, create);
 
 router.get('/timeline', jwtAuth, timeline);
 router.get('/following', jwtAuth, following);
+router.get('/trending', jwtAuth, trending);
 
 router.post('/:id', jwtAuth, getTweet, reply);
 router.get('/:id', jwtAuth, getTweet, get);
