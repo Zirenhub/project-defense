@@ -350,7 +350,14 @@ export const trending = async (req: Request, res: Response) => {
     // Fetch the actual tweet data using the tweetIds
     const tweets = await TweetModel.find({
       _id: { $in: tweetIds },
-    });
+    })
+      .populate('profile')
+      .populate({
+        path: 'retweet.original',
+        populate: {
+          path: 'profile',
+        },
+      });
 
     const modifiedTweets = (await getExtraTweetInfo(tweets, userId)).sort(
       (a, b) =>
