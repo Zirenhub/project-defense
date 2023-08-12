@@ -101,3 +101,13 @@ export const unfollowFailure = createAction(
   '[Profile] Unfollow Failure',
   props<{ error: string }>()
 );
+
+export const postTweetSuccess = createAction(
+  '[Timeline] Post Tweet Success',
+  props<{ tweet: Tweet }>()
+);
+
+export const postTweetFailure = createAction(
+  '[Timeline] Post Tweet Failure',
+  props<{ error?: string; validationErrors?: ValidationErrors }>()
+);

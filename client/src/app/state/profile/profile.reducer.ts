@@ -134,5 +134,17 @@ export const profileReducer = createReducer(
     ...state,
     error,
     status: 'error' as const,
+  })),
+  on(profileActions.postTweetSuccess, (state, { tweet }) => {
+    if (tweet.profile._id === state.profile?._id) {
+      return { ...state, tweets: [tweet, ...state.tweets] };
+    }
+    return { ...state };
+  }),
+  on(profileActions.postTweetFailure, (state, { error, validationErrors }) => ({
+    ...state,
+    error: error ? error : null,
+    validationErrors: validationErrors ? validationErrors : null,
+    status: 'error' as const,
   }))
 );

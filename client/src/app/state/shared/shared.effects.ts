@@ -28,11 +28,10 @@ export class SharedEffects {
         failure: timelineActions.postTweetFailure,
       };
     }
-    // FIX THIS !!!! if on profile and tweet, tweet is lost
-    if (context === sharedActions.sharedContext.Modal) {
+    if (context === sharedActions.sharedContext.Profile) {
       return {
-        success: timelineActions.postTweetSuccess,
-        failure: timelineActions.postTweetFailure,
+        success: profileActions.postTweetSuccess,
+        failure: profileActions.postTweetFailure,
       };
     }
 
@@ -182,7 +181,6 @@ export class SharedEffects {
   getTimeline$ = createEffect(() =>
     this.actions$.pipe(
       ofType(timelineActions.getTimeline),
-      // switchMap operator cancels the previous observable (if there is any) and switches to a new one
       switchMap(() =>
         this.sharedService.getTimeline().pipe(
           map((res) =>
