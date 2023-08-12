@@ -68,3 +68,15 @@ export const getFollowingTimelineFailure = createAction(
   '[Timeline] Get Following Timeline Failure',
   props<{ error: string }>()
 );
+
+export const getTrending = createAction('[Timeline] Get Trending');
+
+export const getTrendingSuccess = createAction(
+  '[Timeline] Get Trending Success',
+  props<{ trending: Tweet[] }>()
+);
+
+export const getTrendingFailure = createAction(
+  '[Timeline] Get Tredining Failure',
+  props<{ error: string }>()
+);

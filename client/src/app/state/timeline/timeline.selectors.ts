@@ -8,3 +8,8 @@ export const selectTimelineTweets = createSelector(
   selectTimeline,
   (state: TimelineState) => state.content.tweets
 );
+
+export const selectTimelineTrending = createSelector(
+  selectTimeline,
+  (state: TimelineState) => state.content.trending
+);

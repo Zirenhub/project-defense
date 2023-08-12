@@ -23,6 +23,10 @@ export class SharedService {
     return this.http.get<TimelineRes>('/api/tweet/following');
   }
 
+  getTrending() {
+    return this.http.get<TimelineRes>('/api/tweet/trending');
+  }
+
   postTweet(content: string) {
     return this.http.post<PostTweetRes>('/api/tweet', { content });
   }

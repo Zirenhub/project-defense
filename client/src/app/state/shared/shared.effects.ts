@@ -218,6 +218,26 @@ export class SharedEffects {
     )
   );
 
+  getTrending$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(timelineActions.getTrending),
+      switchMap(() =>
+        this.sharedService.getTrending().pipe(
+          map((res) =>
+            timelineActions.getTrendingSuccess({ trending: res.data })
+          ),
+          catchError((error) =>
+            of(
+              timelineActions.getTrendingFailure({
+                error: error.error.message || 'Unknown',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
   getTweet$ = createEffect(() =>
     this.actions$.pipe(
       ofType(singleActions.singleGetTweet),

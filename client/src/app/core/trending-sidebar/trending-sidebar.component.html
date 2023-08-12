@@ -5,4 +5,29 @@
   >
     Logout
   </button>
+  <ng-container *ngIf="trending$ | async as trending">
+    <p class="font-bold text-xl">Trending</p>
+    <div class="flex flex-col bg-white rounded-md shadow-md">
+      <div
+        class="flex gap-3 hover:bg-gray-100 p-3 transition-all cursor-pointer"
+        (click)="handleNavigateTweet(trend._id)"
+        *ngFor="let trend of trending"
+      >
+        <img src="../../../assets/default-pfp.svg" class="h-[50px] w-[50px]" />
+        <div class="flex flex-col justify-center">
+          <p>
+            <span class="font-bold pr-2"
+              >{{ trend.profile.firstName }} {{ trend.profile.lastName }}</span
+            >
+            <span class="text-gray-500">@{{ trend.profile.at }}</span>
+          </p>
+          <p>{{ trend.content }}</p>
+        </div>
+        <div class="ml-auto flex gap-1">
+          <app-svg-like class="h-[20px] w-[20px]" />
+          <p>{{ trend.likesCount }}</p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 </div>

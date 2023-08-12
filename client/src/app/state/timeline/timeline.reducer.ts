@@ -8,6 +8,7 @@ import { mapIncRepliesCount } from '../shared/incReplies';
 
 export interface Timeline {
   tweets: Tweet[] | null;
+  trending: Tweet[] | null;
 }
 
 export interface TimelineState {
@@ -18,7 +19,7 @@ export interface TimelineState {
 }
 
 export const initialState: TimelineState = {
-  content: { tweets: null },
+  content: { tweets: null, trending: null },
   error: null,
   validationErrors: null,
   status: 'pending',
@@ -28,21 +29,21 @@ export const timelineReducer = createReducer(
   initialState,
   on(timelineActions.getTimeline, (state) => ({
     ...state,
-    content: { tweets: null },
+    content: { ...state.content, tweets: null },
     error: null,
     validationErrors: null,
     status: 'loading' as const,
   })),
   on(timelineActions.getFollowingTimeline, (state) => ({
     ...state,
-    content: { tweets: null },
+    content: { ...state.content, tweets: null },
     error: null,
     validationErrors: null,
     status: 'loading' as const,
   })),
   on(timelineActions.getTimelineSuccess, (state, { timeline }) => ({
     ...state,
-    content: { tweets: timeline },
+    content: { ...state.content, tweets: timeline },
     status: 'success' as const,
   })),
   on(timelineActions.getTimelineFailure, (state, { error }) => ({
@@ -52,7 +53,7 @@ export const timelineReducer = createReducer(
   })),
   on(timelineActions.getFollowingTimelineSuccess, (state, { timeline }) => ({
     ...state,
-    content: { tweets: timeline },
+    content: { ...state.content, tweets: timeline },
     status: 'success' as const,
   })),
   on(timelineActions.getFollowingTimelineFailure, (state, { error }) => ({
@@ -63,6 +64,7 @@ export const timelineReducer = createReducer(
   on(timelineActions.likeTweetSuccess, (state, { _id, likeOrDislike }) => ({
     ...state,
     content: {
+      ...state.content,
       tweets: state.content.tweets
         ? (mapToggleLike(_id, likeOrDislike, state.content.tweets) as Tweet[])
         : null,
@@ -77,6 +79,7 @@ export const timelineReducer = createReducer(
   on(timelineActions.postTweetSuccess, (state, { tweet }) => ({
     ...state,
     content: {
+      ...state.content,
       tweets: state.content.tweets ? [tweet, ...state.content.tweets] : [tweet],
     },
     status: 'success' as const,
@@ -93,6 +96,7 @@ export const timelineReducer = createReducer(
   on(timelineActions.postReplySuccess, (state, { reply }) => ({
     ...state,
     content: {
+      ...state.content,
       tweets: state.content.tweets
         ? (mapIncRepliesCount(state.content.tweets, reply.tweet._id) as Tweet[])
         : state.content.tweets,
@@ -111,6 +115,7 @@ export const timelineReducer = createReducer(
   on(timelineActions.retweetTweetSuccess, (state, { tweet }) => ({
     ...state,
     content: {
+      ...state.content,
       tweets: state.content.tweets
         ? ([tweet, ...mapToggleRetweet(state.content.tweets, tweet)] as Tweet[])
         : state.content.tweets,
@@ -125,5 +130,18 @@ export const timelineReducer = createReducer(
       validationErrors: validationErrors ? validationErrors : null,
       status: 'error' as const,
     })
-  )
+  ),
+  on(timelineActions.getTrendingSuccess, (state, { trending }) => ({
+    ...state,
+    content: {
+      ...state.content,
+      trending,
+    },
+    status: 'success' as const,
+  })),
+  on(timelineActions.getTrendingFailure, (state, { error }) => ({
+    ...state,
+    error,
+    status: 'error' as const,
+  }))
 );
