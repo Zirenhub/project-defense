@@ -27,7 +27,7 @@ import { singleGetTweet } from '../state/single/single.actions';
   templateUrl: './tweet.component.html',
 })
 export class TweetComponent implements OnInit, OnDestroy {
-  private routeSub: Subscription;
+  private routeSub?: Subscription;
 
   context: sharedContext = sharedContext.Single;
   tweetId?: string;
@@ -41,10 +41,6 @@ export class TweetComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private location: Location
   ) {
-    this.routeSub = this.route.params.subscribe((params) => {
-      this.tweetId = params['id'] as string;
-    });
-
     this.tweet$ = this.store.select(selectSingleTweet);
     this.replies$ = this.store.select(selectSingleReplies);
   }
@@ -83,12 +79,13 @@ export class TweetComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (this.tweetId) {
+    this.routeSub = this.route.params.subscribe((params) => {
+      this.tweetId = params['id'] as string;
       this.store.dispatch(singleGetTweet({ id: this.tweetId }));
-    }
+    });
   }
 
   ngOnDestroy(): void {
-    this.routeSub.unsubscribe();
+    this.routeSub?.unsubscribe();
   }
 }
